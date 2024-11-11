@@ -1,0 +1,45 @@
+UndefineClass('Molotov')
+DefineClass.Molotov = {
+	__parents = { "Grenade" },
+	__generated_by_class = "ModItemInventoryItemCompositeDef",
+
+
+	comment = "AP Cost 4, Burning AOE, Damage 6",
+	object_class = "Grenade",
+	Repairable = false,
+	Reliability = 100,
+	Icon = "UI/Icons/Weapons/Molotov",
+	ItemType = "GrenadeFire",
+	DisplayName = T(874064577488, --[[ModItemInventoryItemCompositeDef Molotov DisplayName]] "Molotov Cocktail"),
+	DisplayNamePlural = T(287644925049, --[[ModItemInventoryItemCompositeDef Molotov DisplayNamePlural]] "Molotov Cocktails"),
+	AdditionalHint = T(286780333538, --[[ModItemInventoryItemCompositeDef Molotov AdditionalHint]] "<bullet_point> Sets an area on fire and inflicts <em>Burning</em>\n<bullet_point> Moderate mishap chance"),
+	UnitStat = "Explosives",
+	Cost = 150,
+	CanAppearInShop = true,
+	RestockWeight = 50,
+	CategoryPair = "Grenade",
+	MinMishapChance = 2,
+	MaxMishapChance = 19,
+	MaxMishapRange = 6,
+	CenterUnitDamageMod = 0,
+	CenterObjDamageMod = 0,
+	CenterAppliedEffects = {
+		"Burning",
+	},
+	AreaOfEffect = 2,
+	AreaUnitDamageMod = 0,
+	AreaObjDamageMod = 0,
+	AreaAppliedEffects = {
+		"Burning",
+	},
+	PenetrationClass = 1,
+	BaseDamage = 6,
+	Scatter = 4,
+	AttackAP = 4000,
+	CanBounce = false,
+	Noise = 0,
+	aoeType = "fire",
+	Entity = "Weapon_MolotovCocktail",
+	ActionIcon = "UI/Icons/Hud/molotov",
+}
+
