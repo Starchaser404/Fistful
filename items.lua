@@ -12,11 +12,126 @@ return {
 			'bidirectionalBlockApply', true,
 		}),
 	}),
+	PlaceObj('ModItemLootDef', {
+		group = "Default",
+		id = "TestStuff",
+		loot = "all",
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Knife",
+			stack_min = 10,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "KevlarHelmet",
+			stack_max = 1,
+			stack_min = 1,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Meds",
+			stack_max = 100,
+			stack_min = 100,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Parts",
+			stack_min = 100,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "FlakArmor",
+			stack_max = 1,
+			stack_min = 1,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "GlowStick",
+			stack_max = 2,
+			stack_min = 2,
+			weight = 100000,
+		}),
+	}),
+	PlaceObj('ModItemLootDef', {
+		group = "Default",
+		id = "TestStuff_copy",
+		loot = "all",
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Knife",
+			stack_min = 10,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "BlackPowder",
+			stack_min = 10,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Meds",
+			stack_max = 100,
+			stack_min = 100,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Combination_Sharpener",
+			stack_max = 3,
+			stack_min = 3,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "Combination_BalancingWeight",
+			stack_max = 3,
+			stack_min = 3,
+			weight = 100000,
+		}),
+		PlaceObj('LootEntryInventoryItem', {
+			item = "FineSteelPipe",
+			stack_max = 5,
+			stack_min = 5,
+		}),
+	}),
 	PlaceObj('ModItemFolder', {
 		'name', "Items",
 	}, {
 		PlaceObj('ModItemInventoryItemCompositeDef', {
+			'Id', "SpecialThrowingKnifes",
+			'object_class', "MeleeWeapon",
+			'Repairable', false,
+			'Reliability', 50,
+			'Icon', "UI/Icons/Weapons/EndlessKnives",
+			'SubIcon', "UI/Icons/Weapons/balanced.dds",
+			'DisplayName', T(329533551232, --[[ModItemInventoryItemCompositeDef SpecialThrowingKnifes DisplayName]] "Titanium Knives"),
+			'DisplayNamePlural', T(730519489599, --[[ModItemInventoryItemCompositeDef SpecialThrowingKnifes DisplayNamePlural]] "Titanium Knives"),
+			'AdditionalHint', T(102958563959, --[[ModItemInventoryItemCompositeDef SpecialThrowingKnifes AdditionalHint]] "<bullet_point> Always available for throwing\n<bullet_point> Low attack costs\n<bullet_point> Increased bonus from Aiming"),
+			'UnitStat', "Dexterity",
+			'Cost', 150,
+			'RestockWeight', 0,
+			'BaseChanceToHit', 100,
+			'CritChance', 3,
+			'CritChanceScaled', 12,
+			'BaseDamage', 12,
+			'AimAccuracy', 30,
+			'PenetrationClass', 4,
+			'DamageMultiplier', 100,
+			'CanThrow', true,
+			'AttackAP', 3000,
+			'MaxAimActions', 4,
+			'Noise', 1,
+			'Entity', "Weapon_FC_AMZ_Knife_01",
+			'HolsterSlot', "Leg",
+		}),
+		PlaceObj('ModItemInventoryItemCompositeDef', {
+			'Id', "IncredibleGoodKnife",
+			'object_class', "Knife",
+			'SubIcon', "Mod/bWKFbe/Images/GoodKnife.png",
+			'DisplayName', T(316019548447, --[[ModItemInventoryItemCompositeDef IncredibleGoodKnife DisplayName]] "Trench Knife"),
+			'DisplayNamePlural', T(645319665415, --[[ModItemInventoryItemCompositeDef IncredibleGoodKnife DisplayNamePlural]] "Trench Knifes"),
+			'Cost', 550,
+			'BaseDamage', 18,
+			'AimAccuracy', 20,
+		}),
+		PlaceObj('ModItemInventoryItemCompositeDef', {
 			'Id', "Bandages",
+			'comment', "Unarmed Bonus Attack Dmg",
 			'object_class', "UnarmedWeapon",
 			'Repairable', false,
 			'Reliability', 100,
@@ -113,6 +228,10 @@ return {
 			'AreaOfEffect', 1,
 			'AreaUnitDamageMod', 0,
 			'AreaObjDamageMod', 0,
+			'AreaAppliedEffects', {
+				"Exposed",
+				"Marked",
+			},
 			'PenetrationClass', 1,
 			'BurnGround', false,
 			'BaseDamage', 0,
@@ -192,13 +311,18 @@ return {
 			'AreaOfEffect', 1,
 			'AreaUnitDamageMod', 0,
 			'AreaObjDamageMod', 0,
+			'AreaAppliedEffects', {
+				"Inaccurate",
+				"Flanked",
+				"Blinded",
+			},
 			'PenetrationClass', 1,
 			'BurnGround', false,
 			'BaseDamage', 0,
 			'Scatter', 2,
 			'AttackAP', 2000,
 			'BaseRange', 1,
-			'ThrowMaxRange', 1,
+			'ThrowMaxRange', 2,
 			'CanBounce', false,
 			'Noise', 1,
 			'ThrowNoise', 1,
@@ -1584,6 +1708,50 @@ return {
 		'name', "OverallCombatChanges",
 	}, {
 		PlaceObj('ModItemCombatAction', {
+			ActivePauseBehavior = "queue",
+			ConfigurableKeybind = false,
+			Description = T(755415365265, --[[ModItemCombatAction Interact_WindowBreak Description]] "Break the window."),
+			DisplayName = T(999811771856, --[[ModItemCombatAction Interact_WindowBreak DisplayName]] "Break"),
+			Execute = function (self, units, args)
+				CombatActionExecuteWithMove(self, units, args)
+			end,
+			GetAPCost = function (self, unit, args)
+				return CombatActionInteractionGetCost(self, unit, args)
+			end,
+			GetTargets = function (self, units)
+				return units[1]:GetReachableObjects("SlabWallWindow")
+			end,
+			GetUIState = function (self, units, args)
+				local base_state = CombatAction.GetUIState(self, units, args)
+				if base_state ~= "enabled" then return base_state end
+				if not args.target:ShouldShowUnitInteraction() then
+					return "hidden"
+				end
+				if args.target.pass_through_state ~= "broken" then
+					return "enabled"
+				end
+				
+				return "hidden"
+			end,
+			Icon = "UI/Hud/iw_break_lock",
+			IdDefault = "Interact_WindowBreakdefault",
+			InterruptInExploration = true,
+			IsAimableAttack = false,
+			MultiSelectBehavior = "first",
+			QueuedBadgeText = T(677417811484, --[[ModItemCombatAction Interact_WindowBreak QueuedBadgeText]] "INTERACT"),
+			RequireState = "any",
+			Run = function (self, unit, ap, ...)
+				local args = ...
+				unit:SetActionCommand("InteractWith", self.id, ap, args.goto_pos, args.goto_ap, args.target)
+			end,
+			ShowIn = false,
+			SortKey = 17,
+			UseFreeMove = true,
+			comment = "WindowBreakCostRemoved",
+			group = "Default",
+			id = "Interact_WindowBreak",
+		}),
+		PlaceObj('ModItemCombatAction', {
 			ActionPoints = 2000,
 			ActivePauseBehavior = "queue",
 			ConfigurableKeybind = false,
@@ -2106,7 +2274,7 @@ return {
 				'EditableColor3', RGBA(0, 0, 0, 255),
 			}),
 			Comment = "Hard working in Red Building",
-			Hair = "EquipmentScully_Hair",
+			Hair = "EquipmentCorazon_Hair",
 			HairColor = PlaceObj('ColorizationPropSet', {
 				'EditableColor1', RGBA(216, 202, 182, 255),
 				'EditableColor2', RGBA(0, 0, 0, 255),
@@ -2126,7 +2294,7 @@ return {
 				'EditableColor2', RGBA(144, 111, 13, 255),
 				'EditableColor3', RGBA(0, 0, 0, 255),
 			}),
-			Head = "Head_Raven",
+			Head = "Head_F_Ca_NPC_01",
 			HeadColor = PlaceObj('ColorizationPropSet', {
 				'EditableColor1', RGBA(0, 0, 0, 255),
 				'EditableColor2', RGBA(0, 0, 0, 255),
@@ -2155,6 +2323,220 @@ return {
 			}),
 			group = "Default",
 			id = "BloodyMary",
+		}),
+		}),
+	PlaceObj('ModItemFolder', {
+		'name', "Game Variables",
+	}, {
+		PlaceObj('ModItemStatGainingPrerequisite', {
+			Comment = "Accumulated <damageToAccumulate> inflicted damage to enemies with firearms",
+			group = "Marksmanship",
+			id = "Marksmanship",
+			msg_reactions = {
+				PlaceObj('MsgReaction', {
+					Event = "OnAttack",
+					Handler = function (self, attacker, action, target, results, attack_args)
+						if IsMerc(attacker) and target and attacker:IsOnEnemySide(target) and IsKindOf(results.weapon, "Firearm") and results.total_damage and not results.miss then
+							local state = GetPrerequisiteState(attacker, self.id)
+							if not state or not state.FirearmDamage then
+								state = {FirearmDamage = 0}
+							end
+							
+							state.FirearmDamage = state.FirearmDamage + results.total_damage
+							if state.FirearmDamage < self:ResolveValue("damageToAccumulate") then
+								SetPrerequisiteState(attacker, self.id, state)
+							else
+								SetPrerequisiteState(attacker, self.id, state, "gain")
+							end
+						end
+					end,
+				}),
+				PlaceObj('MsgActorReaction', {
+					Event = "OnAttack",
+					HandlerCode = function (self, reaction_actor, attacker, action, target, results, attack_args)
+						if not IsMerc(attacker) or not target or not IsKindOf(target, "Unit") or not attacker:IsOnEnemySide(target) then return end
+						if results.weapon and IsKindOf(results.weapon, "Firearm") and results.chance_to_hit and results.chance_to_hit <= self:ResolveValue("maxChanceToHit") and results.fired and results.fired == 1 then
+							if results.killed_units and table.find(results.killed_units, target) then
+								SetPrerequisiteState(attacker, self.id, true, "gain")
+							end
+						end
+					end,
+				}),
+				PlaceObj('MsgActorReaction', {
+					Event = "OnAttack",
+					HandlerCode = function (self, reaction_actor, attacker, action, target, results, attack_args)
+						if IsMerc(attacker) and results.weapon and IsKindOf(results.weapon, "MeleeWeapon") then
+							if action and action.ActionType == "Ranged Attack" then
+								if EnemiesKilled(attacker, results) > 0 then
+									SetPrerequisiteState(attacker, self.id, true, "gain")
+								end
+							end
+						end
+					end,
+				}),
+			},
+			parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "damageToAccumulate",
+					'Value', 110,
+					'Tag', "<damageToAccumulate>",
+				}),
+			},
+			relatedStat = "Marksmanship",
+		}),
+		}),
+	PlaceObj('ModItemFolder', {
+		'name', "New Crafting Recipes",
+	}, {
+		PlaceObj('ModItemRecipeDef', {
+			Ingredients = {
+				PlaceObj('RecipeIngredient', {
+					'item', "Combination_BalancingWeight",
+				}),
+				PlaceObj('RecipeIngredient', {
+					'item', "Combination_BalancingWeight",
+				}),
+			},
+			MechanicalRoll = true,
+			ResultItems = {
+				PlaceObj('RecipeIngredient', {
+					'item', "ThrowKnifeKit",
+				}),
+			},
+			comment = "1",
+			group = "Default",
+			id = "ThrowKnifeKitCombine",
+		}),
+		PlaceObj('ModItemInventoryItemCompositeDef', {
+			'Id', "ThrowKnifeKit",
+			'comment', "2",
+			'object_class', "MiscItem",
+			'Repairable', false,
+			'Icon', "Mod/bWKFbe/Images/KnifeKit.png",
+			'DisplayName', T(506037830814, --[[ModItemInventoryItemCompositeDef ThrowKnifeKit DisplayName]] "Throwing Knife Kit"),
+			'DisplayNamePlural', T(808170074102, --[[ModItemInventoryItemCompositeDef ThrowKnifeKit DisplayNamePlural]] "Throwing Knife Kit"),
+			'Description', T(870658818837, --[[ModItemInventoryItemCompositeDef ThrowKnifeKit Description]] "Throwing Knife Kit"),
+			'AdditionalHint', T(206093302087, --[[ModItemInventoryItemCompositeDef ThrowKnifeKit AdditionalHint]] "<bullet_point> Can be combined with Knifes to create a set of Throwing Knives."),
+			'Cost', 900,
+			'CanAppearInShop', true,
+			'Tier', 2,
+			'MaxStock', 1,
+			'RestockWeight', 15,
+			'CategoryPair', "Components",
+		}),
+		PlaceObj('ModItemRecipeDef', {
+			Difficulty = 50,
+			Ingredients = {
+				PlaceObj('RecipeIngredient', {
+					'item', "Knife",
+				}),
+				PlaceObj('RecipeIngredient', {
+					'item', "ThrowKnifeKit",
+				}),
+			},
+			MechanicalRoll = true,
+			ResultItems = {
+				PlaceObj('RecipeIngredient', {
+					'item', "SpecialThrowingKnifes",
+				}),
+			},
+			comment = "3",
+			group = "Default",
+			id = "ThrowKnifeCombi",
+		}),
+		PlaceObj('ModItemRecipeDef', {
+			Ingredients = {
+				PlaceObj('RecipeIngredient', {
+					'item', "Combination_Sharpener",
+				}),
+				PlaceObj('RecipeIngredient', {
+					'item', "Combination_Sharpener",
+				}),
+			},
+			MechanicalRoll = true,
+			ResultItems = {
+				PlaceObj('RecipeIngredient', {
+					'item', "MeleeKnifeKit",
+				}),
+			},
+			comment = "1",
+			group = "Default",
+			id = "MeleeKnifeKitCombine",
+		}),
+		PlaceObj('ModItemInventoryItemCompositeDef', {
+			'Id', "MeleeKnifeKit",
+			'comment', "2",
+			'object_class', "MiscItem",
+			'Repairable', false,
+			'Icon', "Mod/bWKFbe/Images/KnifeKit.png",
+			'DisplayName', T(617696018828, --[[ModItemInventoryItemCompositeDef MeleeKnifeKit DisplayName]] "Melee Knife Kit"),
+			'DisplayNamePlural', T(643435336901, --[[ModItemInventoryItemCompositeDef MeleeKnifeKit DisplayNamePlural]] "Melee Knife Kit"),
+			'Description', T(552327697675, --[[ModItemInventoryItemCompositeDef MeleeKnifeKit Description]] "Melee Knife Kit"),
+			'AdditionalHint', T(312164722803, --[[ModItemInventoryItemCompositeDef MeleeKnifeKit AdditionalHint]] "<bullet_point> Can be combined with Melee Weapons to create a very well balanced Trench blade."),
+			'Cost', 900,
+			'CanAppearInShop', true,
+			'Tier', 2,
+			'MaxStock', 1,
+			'RestockWeight', 15,
+			'CategoryPair', "Components",
+		}),
+		PlaceObj('ModItemRecipeDef', {
+			Difficulty = 50,
+			Ingredients = {
+				PlaceObj('RecipeIngredient', {
+					'item', "Knife",
+				}),
+				PlaceObj('RecipeIngredient', {
+					'item', "MeleeKnifeKit",
+				}),
+			},
+			MechanicalRoll = true,
+			ResultItems = {
+				PlaceObj('RecipeIngredient', {
+					'item', "IncredibleGoodKnife",
+				}),
+			},
+			comment = "3",
+			group = "Default",
+			id = "MeleeKnifeCombi",
+		}),
+		PlaceObj('ModItemRecipeDef', {
+			Ingredients = {
+				PlaceObj('RecipeIngredient', {
+					'item', "BlackPowder",
+					'amount', 10,
+				}),
+				PlaceObj('RecipeIngredient', {
+					'item', "FineSteelPipe",
+					'amount', 2,
+				}),
+			},
+			ResultItems = {
+				PlaceObj('RecipeIngredient', {
+					'item', "PipeBomb",
+				}),
+			},
+			group = "Default",
+			id = "PipeBomb",
+		}),
+		PlaceObj('ModItemRecipeDef', {
+			Ingredients = {
+				PlaceObj('RecipeIngredient', {
+					'item', "Meds",
+					'amount', 10,
+				}),
+				PlaceObj('RecipeIngredient', {
+					'item', "GlowStick",
+				}),
+			},
+			MechanicalRoll = true,
+			ResultItems = {
+				PlaceObj('RecipeIngredient', {
+					'item', "CombatStim",
+				}),
+			},
+			group = "Default",
+			id = "StimRecipe",
 		}),
 		}),
 	PlaceObj('ModItemUnitDataCompositeDef', {
@@ -2723,89 +3105,5 @@ return {
 		'Tier', "Elite",
 		'Specialization', "MeleeExpert",
 		'gender', "Male",
-	}),
-	PlaceObj('ModItemStatGainingPrerequisite', {
-		Comment = "Accumulated <damageToAccumulate> inflicted damage to enemies with firearms",
-		group = "Marksmanship",
-		id = "Marksmanship",
-		msg_reactions = {
-			PlaceObj('MsgReaction', {
-				Event = "OnAttack",
-				Handler = function (self, attacker, action, target, results, attack_args)
-					if IsMerc(attacker) and target and attacker:IsOnEnemySide(target) and IsKindOf(results.weapon, "Firearm") and results.total_damage and not results.miss then
-						local state = GetPrerequisiteState(attacker, self.id)
-						if not state or not state.FirearmDamage then
-							state = {FirearmDamage = 0}
-						end
-						
-						state.FirearmDamage = state.FirearmDamage + results.total_damage
-						if state.FirearmDamage < self:ResolveValue("damageToAccumulate") then
-							SetPrerequisiteState(attacker, self.id, state)
-						else
-							SetPrerequisiteState(attacker, self.id, state, "gain")
-						end
-					end
-				end,
-			}),
-			PlaceObj('MsgActorReaction', {
-				Event = "OnAttack",
-				HandlerCode = function (self, reaction_actor, attacker, action, target, results, attack_args)
-					if not IsMerc(attacker) or not target or not IsKindOf(target, "Unit") or not attacker:IsOnEnemySide(target) then return end
-					if results.weapon and IsKindOf(results.weapon, "Firearm") and results.chance_to_hit and results.chance_to_hit <= self:ResolveValue("maxChanceToHit") and results.fired and results.fired == 1 then
-						if results.killed_units and table.find(results.killed_units, target) then
-							SetPrerequisiteState(attacker, self.id, true, "gain")
-						end
-					end
-				end,
-			}),
-			PlaceObj('MsgActorReaction', {
-				Event = "OnAttack",
-				HandlerCode = function (self, reaction_actor, attacker, action, target, results, attack_args)
-					if IsMerc(attacker) and results.weapon and IsKindOf(results.weapon, "MeleeWeapon") then
-						if action and action.ActionType == "Ranged Attack" then
-							if EnemiesKilled(attacker, results) > 0 then
-								SetPrerequisiteState(attacker, self.id, true, "gain")
-							end
-						end
-					end
-				end,
-			}),
-		},
-		parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "damageToAccumulate",
-				'Value', 110,
-				'Tag', "<damageToAccumulate>",
-			}),
-		},
-		relatedStat = "Marksmanship",
-	}),
-	PlaceObj('ModItemRecipeDef', {
-		Difficulty = 50,
-		Ingredients = {
-			PlaceObj('RecipeIngredient', {
-				'item', "Knife",
-			}),
-			PlaceObj('RecipeIngredient', {
-				'item', "Combination_Sharpener",
-			}),
-			PlaceObj('RecipeIngredient', {
-				'item', "Combination_BalancingWeight",
-			}),
-		},
-		MechanicalRoll = true,
-		ResultItems = {
-			PlaceObj('RecipeIngredient', {
-				'item', "IncredibleGoodKnife",
-			}),
-		},
-		group = "Default",
-		id = "SharpNBalance",
-	}),
-	PlaceObj('ModItemInventoryItemCompositeDef', {
-		'Id', "IncredibleGoodKnife",
-		'object_class', "Knife",
-		'BaseDamage', 18,
-		'AimAccuracy', 20,
 	}),
 }
