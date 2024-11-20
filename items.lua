@@ -335,6 +335,636 @@ return {
 		'name', "Perks",
 	}, {
 		PlaceObj('ModItemFolder', {
+			'name', "CopperTree65",
+		}, {
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "MartialArts",
+				'SortKey', 100,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "hit",
+						'Value', 15,
+						'Tag', "<hit>%",
+					}),
+					PlaceObj('PresetParamPercent', {
+						'Name', "defense",
+						'Value', 15,
+						'Tag', "<defense>%",
+					}),
+				},
+				'comment', "Vanilla",
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnCalcChanceToHit",
+						Handler = function (self, target, attacker, action, attack_target, weapon1, weapon2, data)
+							if not (action and action.ActionType == "Melee Attack") then return end
+							
+							local text = T{776394275735, "Perk: <name>", name = self.DisplayName}
+							if target == attack_target and IsKindOf(target, "Unit") and target.species ~= "Human" then
+								text = T(767817302327, "Perk: Animal Reflexes")
+							end
+							
+							if target == attacker then
+								ApplyCthModifier_Add(self, data, self:ResolveValue("hit"), text)
+							end
+							if target == attack_target then
+								ApplyCthModifier_Add(self, data, -self:ResolveValue("defense"), text)
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(595506223121, --[[ModItemCharacterEffectCompositeDef MartialArts DisplayName]] "Martial Arts"),
+				'Description', T(629314296216, --[[ModItemCharacterEffectCompositeDef MartialArts Description]] "Improved <em>Accuracy</em> with <em>Melee Attacks</em>.\n\nImproved <em>Defense</em> against <em>Melee Attacks</em>."),
+				'Icon', "UI/Icons/Perks/MartialArts",
+				'Tier', "Bronze",
+				'Stat', "Agility",
+				'StatValue', 65,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "CQCTraining",
+				'SortKey', 100,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "cqc_bonus_max",
+						'Value', 20,
+						'Tag', "<cqc_bonus_max>%",
+					}),
+					PlaceObj('PresetParamPercent', {
+						'Name', "cqc_bonus_loss_per_tile",
+						'Value', 2,
+						'Tag', "<cqc_bonus_loss_per_tile>%",
+					}),
+				},
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnCalcChanceToHit",
+						Handler = function (self, target, attacker, action, attack_target, weapon1, weapon2, data)
+							if target == attacker then
+								local value = self:ResolveValue("cqc_bonus_max")
+								local tileSpace = DivRound(attacker:GetDist2D(attack_target), const.SlabSizeX) - 1
+								if tileSpace > 0 then
+									local lossPerTile = self:ResolveValue("cqc_bonus_loss_per_tile")
+									value = value - lossPerTile * tileSpace
+								end
+								if value > 0 then
+									ApplyCthModifier_Add(self, data, value)
+								end
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(521540608193, --[[ModItemCharacterEffectCompositeDef CQCTraining DisplayName]] "CQC Training"),
+				'Description', T(589879100646, --[[ModItemCharacterEffectCompositeDef CQCTraining Description]] "Major <em>Accuracy</em> bonus when attacking enemies at short range (degrades with distance)."),
+				'Icon', "UI/Icons/Perks/CQCTraining",
+				'Tier', "Bronze",
+				'Stat', "Health",
+				'StatValue', 65,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "Spiritual",
+				'SortKey', 1000,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "minAccuracy",
+						'Value', 3,
+						'Tag', "<minAccuracy>%",
+					}),
+				},
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnCalcChanceToHit",
+						Handler = function (self, target, attacker, action, attack_target, weapon1, weapon2, data)
+							if target == attacker then
+								data.min = self:ResolveValue("minAccuracy")
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(983783137605, --[[ModItemCharacterEffectCompositeDef Spiritual DisplayName]] "Spiritual"),
+				'Description', T(651195540834, --[[ModItemCharacterEffectCompositeDef Spiritual Description]] "Guaranteed <em>Minimal Accuracy</em> with hopeless attacks."),
+				'Icon', "UI/Icons/Perks/Spiritual",
+				'Tier', "Bronze",
+				'Stat', "Wisdom",
+				'StatValue', 65,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "Throwing",
+				'SortKey', 100,
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "RangeIncrease",
+						'Value', 3,
+						'Tag', "<RangeIncrease>",
+					}),
+					PlaceObj('PresetParamNumber', {
+						'Name', "FirstThrowCostReduction",
+						'Value', 3,
+						'Tag', "<FirstThrowCostReduction>",
+					}),
+				},
+				'param_bindings', {},
+				'comment', "Vanilla",
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnBeginTurn",
+						Handler = function (self, target)
+							target:AddStatusEffect("FirstThrow")
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(309705853347, --[[ModItemCharacterEffectCompositeDef Throwing DisplayName]] "Throwing"),
+				'Description', T(863135227201, --[[ModItemCharacterEffectCompositeDef Throwing Description]] "Extended <em>Range</em> of all thrown weapons.\n\nDramatically reduced <em>AP</em> cost for first <em>Knife</em> or <em>Grenade</em> throw each turn."),
+				'OnAdded', function (self, obj)
+					obj:AddStatusEffect("FirstThrow")
+				end,
+				'Icon', "UI/Icons/Perks/Throwing",
+				'Tier', "Bronze",
+				'Stat', "Dexterity",
+				'StatValue', 65,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "HandtoHand",
+				'SortKey', 100,
+				'comment', "Vanilla",
+				'object_class', "Perk",
+				'DisplayName', T(785744655318, --[[ModItemCharacterEffectCompositeDef HandtoHand DisplayName]] "Hand-to-Hand"),
+				'Description', T(931856782191, --[[ModItemCharacterEffectCompositeDef HandtoHand Description]] "Make an <GameTerm('Interrupt')> <em>Melee Attack</em> when an enemy in <em>melee range</em> attacks or tries to move away during the enemy turn."),
+				'Icon', "UI/Icons/Perks/MeleeTraining",
+				'Tier', "Bronze",
+				'Stat', "Strength",
+				'StatValue', 65,
+			}),
+			}),
+		PlaceObj('ModItemFolder', {
+			'name', "Mechanical",
+		}, {
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "MrFixit",
+				'SortKey', 100,
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "mrfixit_bonus",
+						'Value', 15,
+						'Tag', "<mrfixit_bonus>",
+					}),
+					PlaceObj('PresetParamNumber', {
+						'Name', "mrfixit_ap",
+						'Value', 1,
+						'Tag', "<mrfixit_ap>",
+					}),
+				},
+				'object_class', "Perk",
+				'DisplayName', T(963871961609, --[[ModItemCharacterEffectCompositeDef MrFixit DisplayName]] "Mr. Fixit"),
+				'Description', T(870897657280, --[[ModItemCharacterEffectCompositeDef MrFixit Description]] "Major bonus to <em>Disarm</em> traps, <em>Hack</em> devices, and <em>Pick</em> locks checks.\n\nUnjamming weapons costs <em><mrfixit_ap> AP</em>."),
+				'Icon', "UI/Icons/Perks/MrFixit",
+				'Tier', "Bronze",
+				'Stat', "Mechanical",
+				'StatValue', 75,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "AutoFix",
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "conditionPerDay",
+						'Value', 15,
+						'Tag', "<conditionPerDay>",
+					}),
+				},
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnNewDay",
+						Handler = function (self, target)
+							if target.HireStatus ~= "Hired" then return end
+							
+							local conditionPerDay = self:ResolveValue("conditionPerDay")
+							local armor = target:GetEquipedArmour()
+							for _, item in ipairs(armor) do
+								if item.Repairable and item.Condition < 100 then
+									item.Condition = item.Condition + conditionPerDay
+								end
+							end
+								
+							local weapons = target:GetHandheldItems()
+							for _, item in ipairs(weapons) do
+								if item.Repairable and item.Condition < 100 then
+									item.Condition = item.Condition + conditionPerDay
+								end
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(155989860373, --[[ModItemCharacterEffectCompositeDef AutoFix DisplayName]] "Auto Fix"),
+				'Description', T(688401062046, --[[ModItemCharacterEffectCompositeDef AutoFix Description]] "Repairs equipped <em>Weapons</em>, <em>Armor</em>, and <em>Items</em> automatically over a slow time. <em>15 Condition</em> once a <em>day</em>.\n"),
+				'Icon', "Mod/bWKFbe/Images/Weaponation.png",
+				'Tier', "Bronze",
+				'Stat', "Mechanical",
+				'StatValue', 85,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "NightOps",
+				'SortKey', 100,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "night_acc_penalty_reduction",
+						'Value', 66,
+						'Tag', "<night_acc_penalty_reduction>%",
+					}),
+					PlaceObj('PresetParamPercent', {
+						'Name', "night_vision_penalty_reduction",
+						'Value', 50,
+						'Tag', "<night_vision_penalty_reduction>%",
+					}),
+				},
+				'object_class', "Perk",
+				'DisplayName', T(155019238915, --[[ModItemCharacterEffectCompositeDef NightOps DisplayName]] "Night Ops"),
+				'Description', T(401227250346, --[[ModItemCharacterEffectCompositeDef NightOps Description]] "Reduced penalties to <em>Accuracy</em> when at <em>Night</em> and in <em>underground</em> Sectors."),
+				'Icon', "UI/Icons/Perks/NightOps",
+				'Tier', "Bronze",
+				'Stat', "Mechanical",
+				'StatValue', 65,
+			}),
+			}),
+		PlaceObj('ModItemFolder', {
+			'name', "Medical",
+		}, {
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "HealInspire",
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "bonus",
+						'Value', 3,
+						'Tag', "<bonus>",
+					}),
+				},
+				'object_class', "Perk",
+				'msg_reactions', {
+					PlaceObj('MsgActorReaction', {
+						Event = "OnBandage",
+						param_bindings = false,
+					}),
+				},
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnUnitBandaged",
+						Handler = function (self, target, healer, patient, hp_restored)
+							if not self:ResolveValue("applied") then
+								target:GainAP(self:ResolveValue("bonus") * const.Scale.AP)
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(706983392040, --[[ModItemCharacterEffectCompositeDef HealInspire DisplayName]] "Good Deeds"),
+				'Description', T(903953455238, --[[ModItemCharacterEffectCompositeDef HealInspire Description]] "Gain <em><bonus> AP</em>."),
+				'AddEffectText', T(592084101522, --[[ModItemCharacterEffectCompositeDef HealInspire AddEffectText]] "<em><DisplayName></em> is inspired"),
+				'OnAdded', function (self, obj)
+					if g_Combat and g_Teams[g_CurrentTeam] == obj.team then
+						obj:GainAP(self:ResolveValue("bonus") * const.Scale.AP)
+						self:SetParameter("applied", true)
+					end
+				end,
+				'type', "Buff",
+				'lifetime', "Until End of Turn",
+				'Icon', "Mod/bWKFbe/Images/HealSpire.png",
+				'RemoveOnEndCombat', true,
+				'Shown', true,
+				'HasFloatingText', true,
+				'Tier', "Bronze",
+				'Stat', "Medical",
+				'StatValue', 85,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "SuppLine",
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "hoursToProduce",
+						'Value', 12,
+						'Tag', "<hoursToProduce>",
+					}),
+					PlaceObj('PresetParamNumber', {
+						'Name', "amountToProduce",
+						'Value', 1,
+						'Tag', "<amountToProduce>",
+					}),
+					PlaceObj('PresetParamNumber', {
+						'Name', "nextProductionTime",
+						'Tag', "<nextProductionTime>",
+					}),
+				},
+				'comment', "TOProduce",
+				'object_class', "Perk",
+				'msg_reactions', {},
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnNewHour",
+						Handler = function (self, target)
+							if target.HireStatus ~= "Hired" then return end
+							
+							local next_production = self:ResolveValue("nextProductionTime")
+							if Game.CampaignTime >= next_production and not gv_Squads[target.Squad].water_travel then
+								local amountToProduce = NaturalHealing:ResolveValue("amountToProduce")
+								local item_name = amountToProduce > 1 and g_Classes["Meds"].DisplayNamePlural or  g_Classes["Meds"].DisplayName
+								self:SetParameter("nextProductionTime", Game.CampaignTime + self:ResolveValue("hoursToProduce") * const.Scale.h)
+								
+								local slots = { "Inventory" }
+								local canPlaceError, amountLeft
+								local amountToPlace = amountToProduce
+								for _, slot in ipairs(slots) do
+									canPlaceError, amountLeft = CanPlaceItemInInventory("Meds", amountToPlace, target, slot)
+									if not canPlaceError then
+										PlaceItemInInventory("Meds", amountToPlace, target, nil, nil, slot)
+										if not amountLeft then
+											break
+										else
+											amountToPlace = amountLeft
+										end
+									end
+								end
+								
+								local text = T{318623454402, "<merc> produced <amount> <item_name>.", merc = target.Nick, amount = amountToProduce, item_name = item_name}
+								if canPlaceError or (amountLeft and amountLeft > 0) then
+									amountToPlace = amountToPlace or amountToProduce
+									PlaceItemInInventory("Meds", amountToPlace, gv_Squads[target.Squad].CurrentSector)
+									text = text .. T(447763084369, " Some were placed in the sector stash.")
+									CombatLog("important", text)	
+								else
+									CombatLog("important", text)
+								end	
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(496074653709, --[[ModItemCharacterEffectCompositeDef SuppLine DisplayName]] "Supply Line"),
+				'Description', T(987572452673, --[[ModItemCharacterEffectCompositeDef SuppLine Description]] "Produces <amountToProduce> <GameTerm('Meds')> every <hoursToProduce> hours."),
+				'OnAdded', function (self, obj)
+					self:SetParameter("nextProductionTime", Game.CampaignTime + self:ResolveValue("hoursToProduce") * const.Scale.h)
+				end,
+				'Icon', "Mod/bWKFbe/Images/HErb.png",
+				'Tier', "Bronze",
+				'Stat', "Medical",
+				'StatValue', 75,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "PosiAtttitude",
+				'SortKey', 1000,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "procChance",
+						'Value', 10,
+						'Tag', "<procChance>%",
+					}),
+				},
+				'object_class', "Perk",
+				'DisplayName', T(198240305472, --[[ModItemCharacterEffectCompositeDef PosiAtttitude DisplayName]] "Positive Attitude"),
+				'Description', T(123069473670, --[[ModItemCharacterEffectCompositeDef PosiAtttitude Description]] "Small chance to <em>prevent</em> a team <GameTerm('Morale')> loss. There is more to being a healer."),
+				'Icon', "UI/Icons/Perks/Optimist",
+				'Tier', "Bronze",
+				'Stat', "Medical",
+				'StatValue', 65,
+			}),
+			}),
+		PlaceObj('ModItemFolder', {
+			'name', "Explosives",
+		}, {
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "PersonalDealer",
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "hoursToProduce",
+						'Value', 24,
+						'Tag', "<hoursToProduce>",
+					}),
+					PlaceObj('PresetParamNumber', {
+						'Name', "amountToProduce",
+						'Value', 1,
+						'Tag', "<amountToProduce>",
+					}),
+					PlaceObj('PresetParamNumber', {
+						'Name', "nextProductionTime",
+						'Tag', "<nextProductionTime>",
+					}),
+				},
+				'comment', "TOProduce",
+				'object_class', "Perk",
+				'msg_reactions', {},
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnNewHour",
+						Handler = function (self, target)
+							if target.HireStatus ~= "Hired" then return end
+							
+							local next_production = self:ResolveValue("nextProductionTime")
+							if Game.CampaignTime >= next_production and not gv_Squads[target.Squad].water_travel then
+								local amountToProduce = NaturalHealing:ResolveValue("amountToProduce")
+								local item_name = amountToProduce > 1 and g_Classes["PipeBomb"].DisplayNamePlural or  g_Classes["PipeBomb"].DisplayName
+								self:SetParameter("nextProductionTime", Game.CampaignTime + self:ResolveValue("hoursToProduce") * const.Scale.h)
+								
+								local slots = { "Inventory" }
+								local canPlaceError, amountLeft
+								local amountToPlace = amountToProduce
+								for _, slot in ipairs(slots) do
+									canPlaceError, amountLeft = CanPlaceItemInInventory("PipeBomb", amountToPlace, target, slot)
+									if not canPlaceError then
+										PlaceItemInInventory("PipeBomb", amountToPlace, target, nil, nil, slot)
+										if not amountLeft then
+											break
+										else
+											amountToPlace = amountLeft
+										end
+									end
+								end
+								
+								local text = T{318623454402, "<merc> produced <amount> <item_name>.", merc = target.Nick, amount = amountToProduce, item_name = item_name}
+								if canPlaceError or (amountLeft and amountLeft > 0) then
+									amountToPlace = amountToPlace or amountToProduce
+									PlaceItemInInventory("PipeBomb", amountToPlace, gv_Squads[target.Squad].CurrentSector)
+									text = text .. T(447763084369, " Some were placed in the sector stash.")
+									CombatLog("important", text)	
+								else
+									CombatLog("important", text)
+								end	
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(230545306979, --[[ModItemCharacterEffectCompositeDef PersonalDealer DisplayName]] "Personal Arm Dealer"),
+				'Description', T(437031072332, --[[ModItemCharacterEffectCompositeDef PersonalDealer Description]] "Produces <amountToProduce> <GameTerm('Pipe Bombs')> every <hoursToProduce> hours."),
+				'OnAdded', function (self, obj)
+					self:SetParameter("nextProductionTime", Game.CampaignTime + self:ResolveValue("hoursToProduce") * const.Scale.h)
+				end,
+				'Icon', "Mod/bWKFbe/Images/Dealer.png",
+				'Tier', "Bronze",
+				'Stat', "Explosives",
+				'StatValue', 85,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Id', "PowderKeg",
+				'Parameters', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "gritPerEnemyHit",
+						'Value', 3,
+						'Tag', "<gritPerEnemyHit>",
+					}),
+				},
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnUnitAttack",
+						Handler = function (self, target, attacker, action, attack_target, results, attack_args)
+							if target ~= attacker then return end
+							
+							local enemiesHit = 0
+							if results and results.hit_objs then
+								for _, obj in ipairs(results.hit_objs) do
+									if IsKindOf(obj, "Unit") and obj:IsOnEnemySide(attacker) then
+										enemiesHit = enemiesHit + 1
+									end
+								end
+							end
+							
+							if enemiesHit >= 2 then
+								local grit = self:ResolveValue("gritPerEnemyHit") * enemiesHit
+								attacker:ApplyTempHitPoints(grit)
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(330129471125, --[[ModItemCharacterEffectCompositeDef PowderKeg DisplayName]] "Powder Keg Specialist"),
+				'Description', T(620743114960, --[[ModItemCharacterEffectCompositeDef PowderKeg Description]] "Gains <em><gritPerEnemyHit></em> <GameTerm('Grit')> per enemy when hitting multiple enemies at once.\n"),
+				'Icon', "Mod/bWKFbe/Images/Wind.png",
+				'Tier', "Bronze",
+				'Stat', "Explosives",
+				'StatValue', 75,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "Psycho",
+				'SortKey', 10,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "procChance",
+						'Value', 3,
+						'Tag', "<procChance>%",
+					}),
+				},
+				'object_class', "Perk",
+				'unit_reactions', {
+					PlaceObj('UnitReaction', {
+						Event = "OnFirearmAttackStart",
+						Handler = function (self, target, attacker, attack_target, action, attack_args)
+							if target == attacker and (action.id == "SingleShot" or action.id == "BurstFire") then
+								if attacker:Random(100) < self:ResolveValue("procChance") then
+									local weapon = action:GetAttackWeapons(attacker)
+									if action.id == "SingleShot" and table.find(weapon.AvailableAttacks, "BurstFire") then
+										attack_args.replace_action = "BurstFire"
+										PlayVoiceResponse(attacker, "Psycho")
+									elseif action.id == "BurstFire" and table.find(weapon.AvailableAttacks, "AutoFire") then
+										attack_args.replace_action = "AutoFire"
+										PlayVoiceResponse(attacker, "Psycho")
+									end
+								end
+							end
+						end,
+						param_bindings = false,
+					}),
+				},
+				'DisplayName', T(584594848594, --[[ModItemCharacterEffectCompositeDef Psycho DisplayName]] "Psycho"),
+				'Description', T(912873294295, --[[ModItemCharacterEffectCompositeDef Psycho Description]] "Can decide to use a more vicious attack than the one selected.\n\nAdditional <em>conversation options</em>."),
+				'Icon', "UI/Icons/Perks/Psycho",
+				'Tier', "Bronze",
+				'Stat', "Explosives",
+				'StatValue', 65,
+			}),
+			}),
+		PlaceObj('ModItemFolder', {
+			'name', "Leadership",
+		}, {
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "Negotiatior",
+				'SortKey', 10,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "discountPercent",
+						'Value', 20,
+						'Tag', "<discountPercent>%",
+					}),
+				},
+				'param_bindings', {},
+				'object_class', "Perk",
+				'DisplayName', T(560200492600, --[[ModItemCharacterEffectCompositeDef Negotiatior DisplayName]] "Negotiator"),
+				'Description', T(452699475236, --[[ModItemCharacterEffectCompositeDef Negotiatior Description]] "Reduces prices for <em>Sector Operations</em> and <em>Boat Travel</em>.\n\nAdditional <em>conversation options</em>."),
+				'Icon', "UI/Icons/Perks/Negotiator",
+				'Tier', "Bronze",
+				'Stat', "Leadership",
+				'StatValue', 65,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "Teacher",
+				'SortKey', 100,
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "MilitiaTrainingBonusPercent",
+						'Value', 100,
+						'Tag', "<MilitiaTrainingBonusPercent>%",
+					}),
+					PlaceObj('PresetParamPercent', {
+						'Name', "MercTrainingBonus",
+						'Value', 100,
+						'Tag', "<MercTrainingBonus>%",
+					}),
+					PlaceObj('PresetParamPercent', {
+						'Name', "squad_exp_bonus",
+						'Value', 10,
+						'Tag', "<squad_exp_bonus>%",
+					}),
+				},
+				'object_class', "Perk",
+				'DisplayName', T(975482554553, --[[ModItemCharacterEffectCompositeDef Teacher DisplayName]] "Teaching"),
+				'Description', T(691326322758, --[[ModItemCharacterEffectCompositeDef Teacher Description]] "Faster completion of the <em>Train Militia</em> and <em>Training</em> Operations.\n\nGrant <em><percent(squad_exp_bonus)></em> extra<em> XP</em> to the squad (does not stack)."),
+				'Icon', "UI/Icons/Perks/Teacher",
+				'Tier', "Bronze",
+				'Stat', "Leadership",
+				'StatValue', 75,
+			}),
+			PlaceObj('ModItemCharacterEffectCompositeDef', {
+				'Group', "Perk-Specialization",
+				'Id', "ImportantMission",
+				'Parameters', {
+					PlaceObj('PresetParamPercent', {
+						'Name', "activityDurationMod",
+						'Value', 15,
+						'Tag', "<activityDurationMod>%",
+					}),
+				},
+				'object_class', "Perk",
+				'DisplayName', T(270460844880, --[[ModItemCharacterEffectCompositeDef ImportantMission DisplayName]] "Important Mission"),
+				'Description', T(481994962086, --[[ModItemCharacterEffectCompositeDef ImportantMission Description]] "All <em>Operations</em> that the Merc undertakes are completed approximately <em><percent(activityDurationMod)> faster</em>."),
+				'Icon', "Mod/bWKFbe/Images/Mission.png",
+				'Tier', "Bronze",
+				'Stat', "Leadership",
+				'StatValue', 85,
+			}),
+			}),
+		PlaceObj('ModItemFolder', {
 			'name', "BronzeTree75",
 		}, {
 			PlaceObj('ModItemCombatAction', {
@@ -399,6 +1029,68 @@ return {
 				group = "SignatureAbilities",
 				id = "QuickSwap",
 			}),
+			PlaceObj('ModItemCombatAction', {
+				ActivePauseBehavior = "queue",
+				ConfigurableKeybind = false,
+				Description = T(690975598296, --[[ModItemCombatAction FreeSneak Description]] "Toggle <GameTerm('Stealth')>. This action will force the character to be in the <em>Crouched</em> stance if they are in a <em>Standing</em> stance."),
+				DisplayName = T(496412763153, --[[ModItemCombatAction FreeSneak DisplayName]] "Free Sneak"),
+				DisplayNameShort = T(551731309635, --[[ModItemCombatAction FreeSneak DisplayNameShort]] "Free Sneak"),
+				Execute = function (self, units, args)
+					local unit = units[1]
+					local ap = self:GetAPCost(unit, args)
+					NetStartCombatAction(self.id, unit, ap, args)
+					PlayFX("activityButtonPress_Sneak", "start")
+				end,
+				GetAPCost = function (self, unit, args)
+					if not unit:CanStealth(unit:GetStanceToStealth()) then
+						return -1
+					end
+					return self.ActionPoints
+				end,
+				GetUIState = function (self, units, args)
+					units = table.ifilter(units, function(idx, unit) return not unit:HasStatusEffect("Hidden") end)
+					
+					local unit = units[1]
+					if not unit then return "hidden" end
+					if not unit:CanStealth(unit:GetStanceToStealth()) then
+						if unit.enemy_visual_contact then
+							return "disabled", AttackDisableReasons.InEnemySight
+						elseif unit:HasStatusEffect("Revealed") then
+							return "disabled", AttackDisableReasons.Revealed
+						end	
+						return "disabled", AttackDisableReasons.CannotSneak
+					end
+					if not HasPerk(unit, "QuickSwap") then
+						return "hidden"
+					end
+					local cost = self:GetAPCost(unit, args)
+					if cost < 0 or not unit:UIHasAP(cost) then return "disabled" end
+					return "enabled"
+				end,
+				Icon = "UI/Icons/Hud/stealth_off",
+				IdDefault = "FreeSneakdefault",
+				InterruptInExploration = true,
+				IsAimableAttack = false,
+				QueuedBadgeText = T(181265353091, --[[ModItemCombatAction FreeSneak QueuedBadgeText]] "HIDE"),
+				RequireState = "any",
+				Run = function (self, unit, ap, ...)
+					if not g_Combat and unit.goto_target and not IsActivePaused() then
+						local stance = unit:GetStanceToStealth(unit.goto_stance)
+						if unit:CanStealth(stance) then
+							unit.goto_stance = stance
+							unit.goto_hide = true
+						end
+						return
+					end
+					unit:SetActionCommand("Hide")
+				end,
+				ShowIn = "SignatureAbilities",
+				SimultaneousPlay = true,
+				SortKey = 101,
+				comment = "Going into Sneak has its 2 AP Cost Removed",
+				group = "Default",
+				id = "FreeSneak",
+			}),
 			PlaceObj('ModItemCharacterEffectCompositeDef', {
 				'Group', "Wisdom",
 				'Id', "QuickSwap",
@@ -406,10 +1098,10 @@ return {
 				'object_class', "Perk",
 				'unit_reactions', {},
 				'DisplayName', T(295625126344, --[[ModItemCharacterEffectCompositeDef QuickSwap DisplayName]] "Quick swap"),
-				'Description', T(993280149863, --[[ModItemCharacterEffectCompositeDef QuickSwap Description]] "Thanks to your lightning reflexes you can swap weapons for <em>Free</em>"),
+				'Description', T(993280149863, --[[ModItemCharacterEffectCompositeDef QuickSwap Description]] "Thanks to your lightning reflexes you can <em>Swap Weapons</em> for <em>Free</em> as well as going into <em>Sneak Mode</em>."),
 				'Icon', "Mod/bWKFbe/Images/Swap.png",
 				'Tier', "Bronze",
-				'Stat', "Wisdom",
+				'Stat', "Dexterity",
 				'StatValue', 75,
 			}),
 			PlaceObj('ModItemCharacterEffectCompositeDef', {
@@ -449,97 +1141,33 @@ return {
 				'StatValue', 75,
 			}),
 			PlaceObj('ModItemCharacterEffectCompositeDef', {
-				'Id', "Throwing",
-				'SortKey', 100,
+				'Group', "Interactions",
+				'Id', "NaturalStealth",
 				'Parameters', {
-					PlaceObj('PresetParamNumber', {
-						'Name', "RangeIncrease",
-						'Value', 3,
-						'Tag', "<RangeIncrease>",
-					}),
-					PlaceObj('PresetParamNumber', {
-						'Name', "FirstThrowCostReduction",
-						'Value', 3,
-						'Tag', "<FirstThrowCostReduction>",
+					PlaceObj('PresetParamPercent', {
+						'Name', "sight_mod",
+						'Value', -50,
+						'Tag', "<sight_mod>%",
 					}),
 				},
-				'param_bindings', {},
-				'comment', "Vanilla",
+				'comment', "Massive Stealth Bonus",
 				'object_class', "Perk",
 				'unit_reactions', {
 					PlaceObj('UnitReaction', {
-						Event = "OnBeginTurn",
-						Handler = function (self, target)
-							target:AddStatusEffect("FirstThrow")
-						end,
-						param_bindings = false,
-					}),
-				},
-				'DisplayName', T(309705853347, --[[ModItemCharacterEffectCompositeDef Throwing DisplayName]] "Throwing"),
-				'Description', T(863135227201, --[[ModItemCharacterEffectCompositeDef Throwing Description]] "Extended <em>Range</em> of all thrown weapons.\n\nDramatically reduced <em>AP</em> cost for first <em>Knife</em> or <em>Grenade</em> throw each turn."),
-				'OnAdded', function (self, obj)
-					obj:AddStatusEffect("FirstThrow")
-				end,
-				'Icon', "UI/Icons/Perks/Throwing",
-				'Tier', "Bronze",
-				'Stat', "Dexterity",
-				'StatValue', 75,
-			}),
-			PlaceObj('ModItemCharacterEffectCompositeDef', {
-				'Id', "HandtoHand",
-				'SortKey', 100,
-				'comment', "Vanilla",
-				'object_class', "Perk",
-				'DisplayName', T(785744655318, --[[ModItemCharacterEffectCompositeDef HandtoHand DisplayName]] "Hand-to-Hand"),
-				'Description', T(931856782191, --[[ModItemCharacterEffectCompositeDef HandtoHand Description]] "Make an <GameTerm('Interrupt')> <em>Melee Attack</em> when an enemy in <em>melee range</em> attacks or tries to move away during the enemy turn."),
-				'Icon', "UI/Icons/Perks/MeleeTraining",
-				'Tier', "Bronze",
-				'Stat', "Strength",
-				'StatValue', 75,
-			}),
-			PlaceObj('ModItemCharacterEffectCompositeDef', {
-				'Id', "MartialArts",
-				'SortKey', 100,
-				'Parameters', {
-					PlaceObj('PresetParamPercent', {
-						'Name', "hit",
-						'Value', 15,
-						'Tag', "<hit>%",
-					}),
-					PlaceObj('PresetParamPercent', {
-						'Name', "defense",
-						'Value', 15,
-						'Tag', "<defense>%",
-					}),
-				},
-				'comment', "Vanilla",
-				'object_class', "Perk",
-				'unit_reactions', {
-					PlaceObj('UnitReaction', {
-						Event = "OnCalcChanceToHit",
-						Handler = function (self, target, attacker, action, attack_target, weapon1, weapon2, data)
-							if not (action and action.ActionType == "Melee Attack") then return end
-							
-							local text = T{776394275735, "Perk: <name>", name = self.DisplayName}
-							if target == attack_target and IsKindOf(target, "Unit") and target.species ~= "Human" then
-								text = T(767817302327, "Perk: Animal Reflexes")
-							end
-							
-							if target == attacker then
-								ApplyCthModifier_Add(self, data, self:ResolveValue("hit"), text)
-							end
-							if target == attack_target then
-								ApplyCthModifier_Add(self, data, -self:ResolveValue("defense"), text)
+						Event = "OnCalcSightModifier",
+						Handler = function (self, target, value, observer, other, step_pos, darkness)
+							if target == other then
+								return value + self:ResolveValue("sight_mod")
 							end
 						end,
 						param_bindings = false,
 					}),
 				},
-				'DisplayName', T(595506223121, --[[ModItemCharacterEffectCompositeDef MartialArts DisplayName]] "Martial Arts"),
-				'Description', T(629314296216, --[[ModItemCharacterEffectCompositeDef MartialArts Description]] "Improved <em>Accuracy</em> with <em>Melee Attacks</em>.\n\nImproved <em>Defense</em> against <em>Melee Attacks</em>."),
-				'Icon', "UI/Icons/Perks/MartialArts",
-				'Tier', "Bronze",
-				'Stat', "Agility",
+				'DisplayName', T(621848589554, --[[ModItemCharacterEffectCompositeDef NaturalStealth DisplayName]] "Natural Camouflage"),
+				'Description', T(673501055811, --[[ModItemCharacterEffectCompositeDef NaturalStealth Description]] "This character is <sight_mod>% harder to see."),
+				'Icon', "Mod/bWKFbe/Images/Hideskill.png",
+				'Tier', "Silver",
+				'Stat', "Wisdom",
 				'StatValue', 75,
 			}),
 			}),
@@ -574,36 +1202,6 @@ return {
 				'Icon', "Mod/bWKFbe/Images/5.png",
 				'Tier', "Bronze",
 				'Stat', "Wisdom",
-				'StatValue', 85,
-			}),
-			PlaceObj('ModItemCharacterEffectCompositeDef', {
-				'Group', "Interactions",
-				'Id', "NaturalStealth",
-				'Parameters', {
-					PlaceObj('PresetParamPercent', {
-						'Name', "sight_mod",
-						'Value', -50,
-						'Tag', "<sight_mod>%",
-					}),
-				},
-				'comment', "Massive Stealth Bonus",
-				'object_class', "Perk",
-				'unit_reactions', {
-					PlaceObj('UnitReaction', {
-						Event = "OnCalcSightModifier",
-						Handler = function (self, target, value, observer, other, step_pos, darkness)
-							if target == other then
-								return value + self:ResolveValue("sight_mod")
-							end
-						end,
-						param_bindings = false,
-					}),
-				},
-				'DisplayName', T(621848589554, --[[ModItemCharacterEffectCompositeDef NaturalStealth DisplayName]] "Natural Camouflage"),
-				'Description', T(673501055811, --[[ModItemCharacterEffectCompositeDef NaturalStealth Description]] "This character is <sight_mod>% harder to see."),
-				'Icon', "Mod/bWKFbe/Images/Hideskill.png",
-				'Tier', "Silver",
-				'Stat', "Dexterity",
 				'StatValue', 85,
 			}),
 			PlaceObj('ModItemCharacterEffectCompositeDef', {
@@ -1389,7 +1987,7 @@ return {
 				    end
 				    
 				    -- Check if the unit is carrying a weapon
-				    if unit:GetActiveWeapons("Handgun","AssaultRifle","MeleeWeapon","Unarmed","Rifle","Shotgun","Revolver","Pistol","MachineGun","RocketLauncher","GrenadeLauncher","SubmachineGun") then
+				    if unit:GetActiveWeapons("Handgun","MeleeWeapon","AssaultRifle","Unarmed","Rifle","Shotgun","Revolver","Pistol","MachineGun","RocketLauncher","GrenadeLauncher","SubmachineGun") then
 				        return "Hidden" , AttackDisableReasons.RequiresUnarmed
 				    end
 				return CombatActionGenericAttackGetUIState(self, units, args)
@@ -1710,6 +2308,49 @@ return {
 		PlaceObj('ModItemCombatAction', {
 			ActivePauseBehavior = "queue",
 			ConfigurableKeybind = false,
+			Description = T(371263920609, --[[ModItemCombatAction ItemSkills Description]] "Use one of your equipped quick slot items."),
+			DisplayName = T(107303423965, --[[ModItemCombatAction ItemSkills DisplayName]] "Items"),
+			GetActionIcon = function (self, units)
+				return self.Icon
+			end,
+			GetDefaultTarget = function (self, unit)
+				return false
+			end,
+			Icon = "UI/Icons/Hud/inventory",
+			IdDefault = "ItemSkillsdefault",
+			IsAimableAttack = false,
+			QueuedBadgeText = T(516340089542, --[[ModItemCombatAction ItemSkills QueuedBadgeText]] "USE ITEM"),
+			RequireState = "any",
+			SortKey = 98,
+			UIBegin = function (self, units, args)
+				local mode_dlg = GetInGameInterfaceModeDlg()
+				if not IsKindOf(mode_dlg, "IModeCommonUnitControl") then return end
+				local unit = units[1]
+				local availableSkills = { always_show = true }
+				for i, s in ipairs(itemCombatSkillsList) do
+					if unit.ui_actions[s] then
+						local action = CombatActions[s]
+						local entry = {}
+						entry.rolloverTemplate = "CombatActionRollover"
+						entry.rolloverTitle = action:GetActionDisplayName(units)
+						entry.text = action:GetActionDescription(units)
+						entry.icon = action:GetActionIcon(units)
+						entry.disabled = action:GetUIState(units) ~= "enabled"
+						entry.uiCtx = SubContext(units, { action = action })
+						entry.iconColumns = 3
+						availableSkills[#availableSkills + 1] = entry
+					end
+				end
+				mode_dlg:ShowCombatActionTargetChoice(self, units, availableSkills, function(u, item)
+					item.uiCtx.action:UIBegin({unit}, args)
+				end)
+			end,
+			group = "Hidden",
+			id = "ItemSkills",
+		}),
+		PlaceObj('ModItemCombatAction', {
+			ActivePauseBehavior = "queue",
+			ConfigurableKeybind = false,
 			Description = T(755415365265, --[[ModItemCombatAction Interact_WindowBreak Description]] "Break the window."),
 			DisplayName = T(999811771856, --[[ModItemCombatAction Interact_WindowBreak DisplayName]] "Break"),
 			Execute = function (self, units, args)
@@ -1980,65 +2621,6 @@ return {
 			id = "Interact_Disarm",
 		}),
 		PlaceObj('ModItemCombatAction', {
-			ActivePauseBehavior = "queue",
-			ConfigurableKeybind = false,
-			Description = T(690975598296, --[[ModItemCombatAction Hide Description]] "Toggle <GameTerm('Stealth')>. This action will force the character to be in the <em>Crouched</em> stance if they are in a <em>Standing</em> stance."),
-			DisplayName = T(496412763153, --[[ModItemCombatAction Hide DisplayName]] "Sneak Mode"),
-			DisplayNameShort = T(551731309635, --[[ModItemCombatAction Hide DisplayNameShort]] "Sneak Mode"),
-			Execute = function (self, units, args)
-				local unit = units[1]
-				local ap = self:GetAPCost(unit, args)
-				NetStartCombatAction(self.id, unit, ap, args)
-				PlayFX("activityButtonPress_Sneak", "start")
-			end,
-			GetAPCost = function (self, unit, args)
-				if not unit:CanStealth(unit:GetStanceToStealth()) then
-					return -1
-				end
-				return self.ActionPoints
-			end,
-			GetUIState = function (self, units, args)
-				units = table.ifilter(units, function(idx, unit) return not unit:HasStatusEffect("Hidden") end)
-				
-				local unit = units[1]
-				if not unit then return "hidden" end
-				if not unit:CanStealth(unit:GetStanceToStealth()) then
-					if unit.enemy_visual_contact then
-						return "disabled", AttackDisableReasons.InEnemySight
-					elseif unit:HasStatusEffect("Revealed") then
-						return "disabled", AttackDisableReasons.Revealed
-					end	
-					return "disabled", AttackDisableReasons.CannotSneak
-				end
-				local cost = self:GetAPCost(unit, args)
-				if cost < 0 or not unit:UIHasAP(cost) then return "disabled" end
-				return "enabled"
-			end,
-			Icon = "UI/Icons/Hud/stealth_off",
-			IdDefault = "Hidedefault",
-			InterruptInExploration = true,
-			IsAimableAttack = false,
-			QueuedBadgeText = T(181265353091, --[[ModItemCombatAction Hide QueuedBadgeText]] "HIDE"),
-			RequireState = "any",
-			Run = function (self, unit, ap, ...)
-				if not g_Combat and unit.goto_target and not IsActivePaused() then
-					local stance = unit:GetStanceToStealth(unit.goto_stance)
-					if unit:CanStealth(stance) then
-						unit.goto_stance = stance
-						unit.goto_hide = true
-					end
-					return
-				end
-				unit:SetActionCommand("Hide")
-			end,
-			ShowIn = "Special",
-			SimultaneousPlay = true,
-			SortKey = 100,
-			comment = "Going into Sneak has its 2 AP Cost Removed",
-			group = "Default",
-			id = "Hide",
-		}),
-		PlaceObj('ModItemCombatAction', {
 			ActionPoints = 1000,
 			ActivePauseBehavior = "queue",
 			AimType = "melee",
@@ -2153,215 +2735,203 @@ return {
 		}),
 		}),
 	PlaceObj('ModItemFolder', {
-		'name', "BloodyMary",
+		'name', "Units",
 	}, {
-		PlaceObj('ModItemLootDef', {
-			group = "Default",
-			id = "MiraLoadout",
-			loot = "all",
-			PlaceObj('LootEntryInventoryItem', {
-				item = "Knife_Balanced",
-				stack_max = 10,
-				stack_min = 10,
-				weight = 100000,
-			}),
-			PlaceObj('LootEntryInventoryItem', {
-				item = "Sands",
-				stack_max = 20,
-				stack_min = 20,
-				weight = 100000,
-			}),
-			PlaceObj('LootEntryInventoryItem', {
-				item = "Stones",
-				stack_max = 20,
-				stack_min = 20,
-				weight = 100000,
-			}),
-			PlaceObj('LootEntryInventoryItem', {
-				item = "Knife_Sharpened",
-				stack_max = 1,
-				stack_min = 1,
-				weight = 100000,
-			}),
-			PlaceObj('LootEntryInventoryItem', {
-				item = "FirstAidKit",
-				stack_max = 1,
-				stack_min = 1,
-				weight = 100000,
-			}),
-			PlaceObj('LootEntryInventoryItem', {
-				item = "PermaStim",
-				stack_max = 1,
-				stack_min = 1,
-				weight = 100000,
-			}),
-		}),
-		PlaceObj('ModItemUnitDataCompositeDef', {
-			'Id', "BloodyMary",
-			'object_class', "UnitData",
-			'Health', 68,
-			'Agility', 88,
-			'Dexterity', 87,
-			'Strength', 76,
-			'Wisdom', 71,
-			'Leadership', 12,
-			'Marksmanship', 75,
-			'Explosives', 6,
-			'Medical', 11,
-			'Portrait', "Mod/bWKFbe/Images/FaceMary.png",
-			'BigPortrait', "Mod/bWKFbe/Images/FullBodyMary.png",
-			'IsMercenary', true,
-			'Name', T(149633570345, --[[ModItemUnitDataCompositeDef BloodyMary Name]] "Mary Begerac"),
-			'Nick', T(892428821018, --[[ModItemUnitDataCompositeDef BloodyMary Nick]] "Bloodmary"),
-			'StartingPerks', {
-				"LightningReaction",
-				"SteadyBreathing",
-				"MeleeTraining",
-				"Throwing",
-				"MartialArts",
-				"Fray",
-				"SixBladeKnife",
-			},
-			'AppearancesList', {
-				PlaceObj('AppearanceWeight', {
-					'Preset', "BloodyMary",
+		PlaceObj('ModItemFolder', {
+			'name', "BloodyMary",
+		}, {
+			PlaceObj('ModItemLootDef', {
+				group = "Default",
+				id = "MiraLoadout",
+				loot = "all",
+				PlaceObj('LootEntryInventoryItem', {
+					item = "Knife_Balanced",
+					stack_max = 10,
+					stack_min = 10,
+					weight = 100000,
 				}),
-			},
-			'Equipment', {
-				"MiraLoadout",
-			},
-			'Specialization', "KnifeExpert",
-		}),
-		PlaceObj('ModItemInventoryItemCompositeDef', {
-			'Id', "PermaStim",
-			'object_class', "MiscItem",
-			'Repairable', false,
-			'Icon', "UI/Icons/Items/combat_stim",
-			'DisplayName', T(616720046966, --[[ModItemInventoryItemCompositeDef PermaStim DisplayName]] "Perma Stim"),
-			'DisplayNamePlural', T(913174307950, --[[ModItemInventoryItemCompositeDef PermaStim DisplayNamePlural]] "Perma Stims"),
-			'AdditionalHint', T(350515156177, --[[ModItemInventoryItemCompositeDef PermaStim AdditionalHint]] "<bullet_point> Used through the Item Menu\n<bullet_point> Single use\n<bullet_point> Gain extra AP until the end of next turn\n<bullet_point> Lose Energy after the effect wears off"),
-			'locked', true,
-			'Tier', 2,
-			'MaxStock', 6,
-			'RestockWeight', 25,
-			'CategoryPair', "Medicine",
-			'MaxStacks', 1,
-			'effect_moment', "on_use",
-			'Effects', {
-				PlaceObj('UnitAddStatusEffect', {
-					Status = "Stimmed",
+				PlaceObj('LootEntryInventoryItem', {
+					item = "Sands",
+					stack_max = 20,
+					stack_min = 20,
+					weight = 100000,
 				}),
-			},
-			'action_name', T(827141838824, --[[ModItemInventoryItemCompositeDef PermaStim action_name]] "USE"),
-			'onlyOnMap', true,
-		}),
-		PlaceObj('ModItemAppearancePreset', {
-			ArmorColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(0, 0, 0, 255),
-				'EditableColor2', RGBA(0, 0, 0, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
+				PlaceObj('LootEntryInventoryItem', {
+					item = "Stones",
+					stack_max = 20,
+					stack_min = 20,
+					weight = 100000,
+				}),
+				PlaceObj('LootEntryInventoryItem', {
+					item = "Knife_Sharpened",
+					stack_max = 1,
+					stack_min = 1,
+					weight = 100000,
+				}),
+				PlaceObj('LootEntryInventoryItem', {
+					item = "FirstAidKit",
+					stack_max = 1,
+					stack_min = 1,
+					weight = 100000,
+				}),
+				PlaceObj('LootEntryInventoryItem', {
+					item = "PermaStim",
+					stack_max = 1,
+					stack_min = 1,
+					weight = 100000,
+				}),
 			}),
-			Body = "EquipmentMeltdown_Top",
-			BodyColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(38, 18, 12, 255),
-				'EditableColor2', RGBA(56, 21, 95, 255),
-				'EditableRoughness2', 89,
-				'EditableColor3', RGBA(10, 65, 2, 255),
+			PlaceObj('ModItemUnitDataCompositeDef', {
+				'Id', "BloodyMary",
+				'object_class', "UnitData",
+				'Health', 68,
+				'Agility', 88,
+				'Dexterity', 87,
+				'Strength', 76,
+				'Wisdom', 71,
+				'Leadership', 12,
+				'Marksmanship', 75,
+				'Explosives', 6,
+				'Medical', 11,
+				'Portrait', "Mod/bWKFbe/Images/FaceMary.png",
+				'BigPortrait', "Mod/bWKFbe/Images/FullBodyMary.png",
+				'IsMercenary', true,
+				'Name', T(149633570345, --[[ModItemUnitDataCompositeDef BloodyMary Name]] "Mary Begerac"),
+				'Nick', T(892428821018, --[[ModItemUnitDataCompositeDef BloodyMary Nick]] "Bloodmary"),
+				'StartingPerks', {
+					"LightningReaction",
+					"SteadyBreathing",
+					"MeleeTraining",
+					"Throwing",
+					"MartialArts",
+					"Fray",
+					"SixBladeKnife",
+				},
+				'AppearancesList', {
+					PlaceObj('AppearanceWeight', {
+						'Preset', "BloodyMary",
+					}),
+				},
+				'Equipment', {
+					"MiraLoadout",
+				},
+				'Specialization', "KnifeExpert",
 			}),
-			ChestColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(0, 0, 0, 255),
-				'EditableColor2', RGBA(0, 0, 0, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
+			PlaceObj('ModItemInventoryItemCompositeDef', {
+				'Id', "PermaStim",
+				'object_class', "MiscItem",
+				'Repairable', false,
+				'Icon', "UI/Icons/Items/combat_stim",
+				'DisplayName', T(616720046966, --[[ModItemInventoryItemCompositeDef PermaStim DisplayName]] "Perma Stim"),
+				'DisplayNamePlural', T(913174307950, --[[ModItemInventoryItemCompositeDef PermaStim DisplayNamePlural]] "Perma Stims"),
+				'AdditionalHint', T(350515156177, --[[ModItemInventoryItemCompositeDef PermaStim AdditionalHint]] "<bullet_point> Used through the Item Menu\n<bullet_point> Single use\n<bullet_point> Gain extra AP until the end of next turn\n<bullet_point> Lose Energy after the effect wears off"),
+				'locked', true,
+				'Tier', 2,
+				'MaxStock', 6,
+				'RestockWeight', 25,
+				'CategoryPair', "Medicine",
+				'MaxStacks', 1,
+				'effect_moment', "on_use",
+				'Effects', {
+					PlaceObj('UnitAddStatusEffect', {
+						Status = "Stimmed",
+					}),
+				},
+				'action_name', T(827141838824, --[[ModItemInventoryItemCompositeDef PermaStim action_name]] "USE"),
+				'onlyOnMap', true,
 			}),
-			Comment = "Hard working in Red Building",
-			Hair = "EquipmentCorazon_Hair",
-			HairColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(216, 202, 182, 255),
-				'EditableColor2', RGBA(0, 0, 0, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
+			PlaceObj('ModItemAppearancePreset', {
+				ArmorColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(0, 0, 0, 255),
+					'EditableColor2', RGBA(0, 0, 0, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Body = "EquipmentMeltdown_Top",
+				BodyColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(38, 18, 12, 255),
+					'EditableColor2', RGBA(56, 21, 95, 255),
+					'EditableRoughness2', 89,
+					'EditableColor3', RGBA(10, 65, 2, 255),
+				}),
+				ChestColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(0, 0, 0, 255),
+					'EditableColor2', RGBA(0, 0, 0, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Comment = "Hard working in Red Building",
+				Hair = "EquipmentCorazon_Hair",
+				HairColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(216, 202, 182, 255),
+					'EditableColor2', RGBA(0, 0, 0, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Hat = "EquipmentBlood_Hat",
+				Hat2 = "NPCMollie_Sunglasses_01",
+				Hat2Color = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(57, 50, 50, 255),
+					'EditableColor2', RGBA(0, 0, 0, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				HatAttachOffsetX = -7,
+				HatAttachOffsetY = -9,
+				HatColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(152, 23, 56, 255),
+					'EditableColor2', RGBA(144, 111, 13, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Head = "Head_F_Ca_NPC_01",
+				HeadColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(0, 0, 0, 255),
+					'EditableColor2', RGBA(0, 0, 0, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Hip = "Faction_Bag_02",
+				HipColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(0, 0, 0, 255),
+					'EditableColor2', RGBA(0, 0, 0, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Pants = "EquipmentLivewire_Bottom",
+				PantsColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(145, 0, 0, 255),
+					'EditableColor2', RGBA(6, 1, 12, 255),
+					'EditableRoughness2', -128,
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				Shirt = "EquipmentFemale_Shirt_02",
+				ShirtColor = PlaceObj('ColorizationPropSet', {
+					'EditableColor1', RGBA(93, 1, 1, 255),
+					'EditableRoughness1', -81,
+					'EditableMetallic1', -100,
+					'EditableColor2', RGBA(8, 8, 8, 255),
+					'EditableColor3', RGBA(0, 0, 0, 255),
+				}),
+				group = "Default",
+				id = "BloodyMary",
 			}),
-			Hat = "EquipmentBlood_Hat",
-			Hat2 = "NPCMollie_Sunglasses_01",
-			Hat2Color = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(57, 50, 50, 255),
-				'EditableColor2', RGBA(0, 0, 0, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
 			}),
-			HatAttachOffsetX = -7,
-			HatAttachOffsetY = -9,
-			HatColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(152, 23, 56, 255),
-				'EditableColor2', RGBA(144, 111, 13, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
-			}),
-			Head = "Head_F_Ca_NPC_01",
-			HeadColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(0, 0, 0, 255),
-				'EditableColor2', RGBA(0, 0, 0, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
-			}),
-			Hip = "Faction_Bag_02",
-			HipColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(0, 0, 0, 255),
-				'EditableColor2', RGBA(0, 0, 0, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
-			}),
-			Pants = "EquipmentLivewire_Bottom",
-			PantsColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(145, 0, 0, 255),
-				'EditableColor2', RGBA(6, 1, 12, 255),
-				'EditableRoughness2', -128,
-				'EditableColor3', RGBA(0, 0, 0, 255),
-			}),
-			Shirt = "EquipmentFemale_Shirt_02",
-			ShirtColor = PlaceObj('ColorizationPropSet', {
-				'EditableColor1', RGBA(93, 1, 1, 255),
-				'EditableRoughness1', -81,
-				'EditableMetallic1', -100,
-				'EditableColor2', RGBA(8, 8, 8, 255),
-				'EditableColor3', RGBA(0, 0, 0, 255),
-			}),
-			group = "Default",
-			id = "BloodyMary",
-		}),
 		}),
 	PlaceObj('ModItemFolder', {
 		'name', "Game Variables",
 	}, {
+		PlaceObj('ModItemConstDef', {
+			Comment = "defines the movement speed of the thrown knife as well as the parabolic part of the trajectory (if there's one); units are [m/s]",
+			group = "Default",
+			id = "KnifeThrowVelocity",
+			scale = "m",
+			value = 18000,
+		}),
+		PlaceObj('ModItemConstDef', {
+			group = "Default",
+			id = "CamoSightPenalty",
+			scale = "%",
+			value = 35,
+		}),
 		PlaceObj('ModItemStatGainingPrerequisite', {
 			Comment = "Accumulated <damageToAccumulate> inflicted damage to enemies with firearms",
 			group = "Marksmanship",
-			id = "Marksmanship",
+			id = "KnifeThrow",
 			msg_reactions = {
-				PlaceObj('MsgReaction', {
-					Event = "OnAttack",
-					Handler = function (self, attacker, action, target, results, attack_args)
-						if IsMerc(attacker) and target and attacker:IsOnEnemySide(target) and IsKindOf(results.weapon, "Firearm") and results.total_damage and not results.miss then
-							local state = GetPrerequisiteState(attacker, self.id)
-							if not state or not state.FirearmDamage then
-								state = {FirearmDamage = 0}
-							end
-							
-							state.FirearmDamage = state.FirearmDamage + results.total_damage
-							if state.FirearmDamage < self:ResolveValue("damageToAccumulate") then
-								SetPrerequisiteState(attacker, self.id, state)
-							else
-								SetPrerequisiteState(attacker, self.id, state, "gain")
-							end
-						end
-					end,
-				}),
-				PlaceObj('MsgActorReaction', {
-					Event = "OnAttack",
-					HandlerCode = function (self, reaction_actor, attacker, action, target, results, attack_args)
-						if not IsMerc(attacker) or not target or not IsKindOf(target, "Unit") or not attacker:IsOnEnemySide(target) then return end
-						if results.weapon and IsKindOf(results.weapon, "Firearm") and results.chance_to_hit and results.chance_to_hit <= self:ResolveValue("maxChanceToHit") and results.fired and results.fired == 1 then
-							if results.killed_units and table.find(results.killed_units, target) then
-								SetPrerequisiteState(attacker, self.id, true, "gain")
-							end
-						end
-					end,
-				}),
 				PlaceObj('MsgActorReaction', {
 					Event = "OnAttack",
 					HandlerCode = function (self, reaction_actor, attacker, action, target, results, attack_args)
@@ -2383,6 +2953,944 @@ return {
 				}),
 			},
 			relatedStat = "Marksmanship",
+		}),
+		}),
+	PlaceObj('ModItemFolder', {
+		'name', "PerkUI",
+	}, {
+		PlaceObj('ModItemXTemplate', {
+			__is_kind_of = "XDialog",
+			group = "Zulu PDA",
+			id = "PDAPerks",
+			PlaceObj('XTemplateWindow', {
+				'__class', "PDAPerks",
+				'Id', "idPerks",
+				'MinWidth', 1002,
+				'MinHeight', 730,
+				'MaxWidth', 1002,
+				'MaxHeight', 730,
+				'ContextUpdateOnOpen', true,
+				'OnContextUpdate', function (self, context, ...)
+					self.unit = context
+					self.PerkPoints = context.perkPoints
+					self:ResolveId("idPerksContent"):RespawnContent()
+				end,
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'__class', "XFrame",
+					'IdNode', false,
+					'Padding', box(19, 16, 19, 0),
+					'Image', "UI/PDA/os_background_2",
+					'FrameBox', box(3, 3, 3, 3),
+				}, {
+					PlaceObj('XTemplateWindow', {
+						'__class', "XContentTemplate",
+						'Id', "idPerksContent",
+					}, {
+						PlaceObj('XTemplateWindow', {
+							'comment', "to check layout completion",
+							'Dock', "bottom",
+							'OnLayoutComplete', function (self)
+								local dlg = GetDialog(self)
+								Msg("PerksLayoutDone", dlg)
+							end,
+							'FoldWhenHidden', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'__class', "MessengerScrollbar",
+							'Id', "idPerksScroll",
+							'Dock', "bottom",
+							'Target', "idPerksScrollArea",
+							'AutoHide', true,
+							'Horizontal', true,
+						}),
+						PlaceObj('XTemplateWindow', {
+							'comment', "top bar",
+							'Padding', box(4, 0, 4, 0),
+							'Dock', "top",
+							'MinWidth', 918,
+							'MinHeight', 20,
+							'MaxWidth', 918,
+							'MaxHeight', 20,
+							'GridStretchX', false,
+							'GridStretchY', false,
+							'LayoutMethod', "HList",
+							'Background', RGBA(88, 92, 68, 128),
+							'RolloverOnFocus', true,
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'__class', "XImage",
+								'Margins', box(4, 0, 4, 0),
+								'VAlign', "center",
+								'Image', "UI/PDA/level_up",
+							}),
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'TextStyle', "PDABrowserHeader",
+								'Translate', true,
+								'Text', T(596918367232, --[[ModItemXTemplate PDAPerks Text]] "Perks Level up"),
+								'TextVAlign', "bottom",
+							}),
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idPointsText",
+								'ZOrder', 10,
+								'Dock', "right",
+								'TextStyle', "PDABrowserHeader",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+									local dlg = GetDialog(self)
+									if dlg.PerkPoints <= 0 then
+										self:SetText(T(324504304637, "No Available perks"))
+									elseif not self:IsThreadRunning("blink-anim") then
+										self:CreateThread("blink-anim", function()
+											local blink = false
+											while self.window_state ~= "destroying" or dlg.PerkPoints >= 1 do
+												if blink then
+													self:SetTextStyle("InventoryToolbarButtonCenter")
+													blink = false
+												else
+													blink = true
+													self:SetTextStyle("PDABrowserHeader")
+												end
+												Sleep(800)
+											end
+										end)
+									end
+								end,
+								'Translate', true,
+								'Text', T(946628879036, --[[ModItemXTemplate PDAPerks Text]] "Available perks"),
+								'TextVAlign', "bottom",
+							}),
+							PlaceObj('XTemplateWindow', {
+								'comment', "points",
+								'__context', function (parent, context) return "perk_points" end,
+								'__class', "XText",
+								'Margins', box(8, 0, 0, 0),
+								'Dock', "right",
+								'MinWidth', 24,
+								'MaxWidth', 24,
+								'TextStyle', "PDABrowserPoints",
+								'ContextUpdateOnOpen', true,
+								'OnContextUpdate', function (self, context, ...)
+									local dlg = GetDialog(self)
+									self:SetText(T{310974211077, "<points>", points = dlg.PerkPoints})
+								end,
+								'Translate', true,
+								'Text', T(365219317792, --[[ModItemXTemplate PDAPerks Text]] "<perkPoints>"),
+								'TextVAlign', "center",
+							}),
+							}),
+						PlaceObj('XTemplateWindow', {
+							'comment', "grid",
+							'__class', "XScrollArea",
+							'Id', "idPerksScrollArea",
+							'Margins', box(0, 4, 0, 0),
+							'MinWidth', 1000,
+							'MaxWidth', 1000,
+							'GridStretchX', false,
+							'GridStretchY', false,
+							'ScaleModifier', point(750, 750),
+							'OnLayoutComplete', function (self)
+								local wheelstep = 80
+								if GetDialog(self).totalPerks > 90 then
+									self:SetMouseWheelStep(wheelstep)
+								else
+									self:SetMouseWheelStep(0)
+								end
+							end,
+							'LayoutMethod', "Grid",
+							'VScroll', "idPerksScroll",
+							'MouseWheelStep', 0,
+						}, {
+							PlaceObj('XTemplateWindow', {
+								'LayoutMethod', "VList",
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'comment', "Stats text",
+									'__class', "XText",
+									'Padding', box(0, 0, 0, 0),
+									'MinWidth', 180,
+									'MaxWidth', 180,
+									'TextStyle', "PDABrowserSubtitle",
+									'Translate', true,
+									'Text', T(694107464921, --[[ModItemXTemplate PDAPerks Text]] "Stats"),
+									'WordWrap', false,
+								}),
+								PlaceObj('XTemplateWindow', {
+									'__class', "XFrame",
+									'Margins', box(0, 0, -10000, 0),
+									'DrawOnTop', true,
+									'Image', "UI/PDA/separate_line_vertical",
+									'FrameBox', box(3, 3, 3, 3),
+									'SqueezeY', false,
+								}),
+								}),
+							PlaceObj('XTemplateWindow', {
+								'comment', "empty 2nd row",
+								'GridY', 2,
+							}),
+							PlaceObj('XTemplateForEach', {
+								'comment', "GetPerkStatAmountGroups()",
+								'array', function (parent, context) return GetPerkStatAmountGroups() end,
+								'item_in_context', "amountGroup",
+								'run_after', function (child, context, item, i, n, last)
+									child:SetGridX(i+1)
+									if i == 1 then
+									child:SetMargins(box(4, 0, 0, 0))
+									end
+								end,
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'Margins', box(26, 0, 0, 0),
+									'LayoutMethod', "HList",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XFrame",
+										'Margins', box(0, 0, 0, 4),
+										'Image', "UI/PDA/separate_line",
+										'FrameBox', box(3, 3, 3, 3),
+										'SqueezeX', false,
+									}),
+									PlaceObj('XTemplateWindow', {
+										'__class', "XText",
+										'Margins', box(4, 0, 0, 0),
+										'Padding', box(0, 0, 0, 0),
+										'TextStyle', "PDABrowserSubtitle",
+										'ContextUpdateOnOpen', true,
+										'OnContextUpdate', function (self, context, ...)
+											self:SetText(Untranslated(context.amountGroup))
+										end,
+										'Translate', true,
+									}),
+									}),
+								}),
+							PlaceObj('XTemplateForEach', {
+								'comment', "stat",
+								'array', function (parent, context) return UnitPropertiesStats:GetAllAttributes() end,
+								'item_in_context', "statProp",
+								'run_after', function (child, context, item, i, n, last)
+									child:SetGridY(i+2)
+								end,
+							}, {
+								PlaceObj('XTemplateWindow', {
+									'VAlign', "bottom",
+									'LayoutMethod', "VList",
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'__class', "XText",
+										'Padding', box(0, 0, 0, 0),
+										'TextStyle', "PDABrowserHeader",
+										'ContextUpdateOnOpen', true,
+										'OnContextUpdate', function (self, context, ...)
+											self:SetText(context.statProp.name)
+										end,
+										'Translate', true,
+										'TextVAlign', "bottom",
+									}),
+									PlaceObj('XTemplateWindow', {
+										'__class', "XFrame",
+										'Margins', box(0, 0, -10000, 0),
+										'DrawOnTop', true,
+										'Image', "UI/PDA/separate_line_vertical",
+										'FrameBox', box(3, 3, 3, 3),
+										'SqueezeY', false,
+									}),
+									}),
+								}),
+							PlaceObj('XTemplateForEach', {
+								'comment', "attribute",
+								'array', function (parent, context) return UnitPropertiesStats:GetAllAttributes() end,
+								'item_in_context', "statProp",
+								'__context', function (parent, context, item, i, n) return SubContext(context, {perkUIRow = i}) end,
+							}, {
+								PlaceObj('XTemplateForEach', {
+									'comment', "GetPerkStatAmountGroups()",
+									'array', function (parent, context) return GetPerkStatAmountGroups() end,
+									'item_in_context', "amountGroup",
+									'__context', function (parent, context, item, i, n) return SubContext(context, {perkUIColumn = i}) end,
+									'run_after', function (child, context, item, i, n, last)
+										child:SetGridX(context.perkUIColumn+1)
+										child:SetGridY(context.perkUIRow+2)
+										if context.perkUIColumn == 1 then
+										child:SetMargins(box(20, 0, -20, 4))
+										end
+									end,
+								}, {
+									PlaceObj('XTemplateWindow', {
+										'Margins', box(40, 0, -20, 2),
+										'LayoutMethod', "HList",
+									}, {
+										PlaceObj('XTemplateForEach', {
+											'array', function (parent, context) return PresetArray(CharacterEffectCompositeDef) end,
+											'condition', function (parent, context, item, i) return item.object_class == "Perk" and item.Stat == context.statProp.id and item.StatValue == context.amountGroup and table.find({"Bronze", "Silver", "Gold"}, item.Tier) end,
+											'run_after', function (child, context, item, i, n, last)
+												local dlg = GetDialog(child)
+												child:SetPerkId(item.id)
+												
+												if not dlg:CanUnlockPerk(context, item) then
+													child:SetEnabled(false)
+												end
+												child.bottomAnchor = true
+												dlg.totalPerks = dlg.totalPerks + 1
+											end,
+										}, {
+											PlaceObj('XTemplateTemplate', {
+												'__template', "PDAPerkLevelUp",
+												'RolloverTemplate', "PDAPerkRollover",
+												'Margins', box(3, 3, 3, 3),
+												'DisabledBorderColor', RGBA(0, 0, 0, 0),
+											}),
+											}),
+										}),
+									PlaceObj('XTemplateWindow', {
+										'comment', "blue background bar related to the stat",
+										'__condition', function (parent, context) return false end,
+										'__class', "XContextWindow",
+										'ZOrder', -10,
+										'Margins', box(30, 26, -30, 2),
+										'OnLayoutComplete', function (self)
+											local context = self:GetContext()
+											local statValue = context[context.statProp.id]
+											local group = context.amountGroup
+											local nextGroup = group + 10
+											
+											if statValue <= group then
+												self:SetVisible(false)
+											elseif statValue > group and statValue < nextGroup then
+												local width = self.box:sizex()
+												local newWidth = MulDivRound(width, (statValue - group), 10)
+												self:SetBox(self.box:minx(), self.box:miny(), newWidth, self.box:sizey())
+											end
+										end,
+										'Background', RGBA(61, 122, 153, 69),
+										'ContextUpdateOnOpen', true,
+										'OnContextUpdate', function (self, context, ...)
+											local x = context.perkUIColumn
+											local y = context.perkUIRow
+											self:SetGridX(x+1)
+											self:SetGridY(y+2)
+										end,
+									}),
+									PlaceObj('XTemplateWindow', {
+										'__class', "XContextWindow",
+										'ZOrder', -10,
+										'Margins', box(28, 0, -28, 0),
+										'Background', RGBA(52, 55, 61, 178),
+										'ContextUpdateOnOpen', true,
+										'OnContextUpdate', function (self, context, ...)
+											local x = context.perkUIColumn
+											local y = context.perkUIRow
+											self:SetGridX(x+1)
+											self:SetGridY(y+2)
+											
+											self:SetVisible(x % 2 == 0)
+										end,
+									}),
+									}),
+								}),
+							PlaceObj('XTemplateWindow', {
+								'__class', "XText",
+								'Id', "idPerksWarning",
+								'Margins', box(0, 15, 0, 15),
+								'HAlign', "center",
+								'VAlign', "center",
+								'GridX', 2,
+								'GridY', 8,
+								'GridWidth', 3,
+								'Visible', false,
+								'TextStyle', "PDAPerksWarning",
+								'Translate', true,
+								'Text', T(738844048157, --[[ModItemXTemplate PDAPerks Text]] "Deselect a perk to choose a new one"),
+								'TextHAlign', "center",
+								'TextVAlign', "center",
+							}),
+							}),
+						}),
+					}),
+				PlaceObj('XTemplateFunc', {
+					'name', "Open(self, ...)",
+					'func', function (self, ...)
+						XDialog.Open(self, ...)
+						TutorialHintsState.PerksMenu = true
+						TutorialHintVisibilityEvaluate()
+					end,
+				}),
+				}),
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "GetAllAttributes",
+			'CodeFileName', "Code/GetAllAttributes.lua",
+		}),
+		}),
+	PlaceObj('ModItemFolder', {
+		'name', "Units",
+	}, {
+		PlaceObj('ModItemUnitDataCompositeDef', {
+			'Group', "MercenariesOld",
+			'Id', "DrQ",
+			'object_class', "UnitData",
+			'Health', 88,
+			'Agility', 94,
+			'Dexterity', 81,
+			'Strength', 73,
+			'Wisdom', 87,
+			'Leadership', 26,
+			'Mechanical', 19,
+			'Explosives', 20,
+			'Medical', 88,
+			'Portrait', "UI/MercsPortraits/DrQ",
+			'BigPortrait', "UI/Mercs/DrQ",
+			'IsMercenary', true,
+			'Name', T(439421925357, --[[ModItemUnitDataCompositeDef DrQ Name]] "Dr. Q. Huaong"),
+			'Nick', T(255166847971, --[[ModItemUnitDataCompositeDef DrQ Nick]] "Dr. Q"),
+			'AllCapsNick', T(474179139438, --[[ModItemUnitDataCompositeDef DrQ AllCapsNick]] "DR. Q"),
+			'Bio', T(534822476757, --[[ModItemUnitDataCompositeDef DrQ Bio]] "While attending a seminar on acupuncture where he served as guest lecturer, Dr. Q had the opportunity to use his skills in night operations and martial arts to infiltrate the compound of a nearby drug lord to liberate a hoard of medical supplies and deliver them to a local hospital. It is rumored he waived his usual fee for such services, but Huaong denies it."),
+			'Nationality', "China",
+			'Title', T(615125004223, --[[ModItemUnitDataCompositeDef DrQ Title]] "Expert in Aggressive Acupuncture"),
+			'Email', T(930834652198, --[[ModItemUnitDataCompositeDef DrQ Email]] "sage_q@aim.com"),
+			'snype_nick', T(509571188579, --[[ModItemUnitDataCompositeDef DrQ snype_nick]] "sage_q"),
+			'Refusals', {
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(692942746751, --[[ModItemUnitDataCompositeDef DrQ Text MercChatRefusal Lines ChatMessage voice:DrQ]] "I must sorrowfully decline. I am participating in the review of a new treatment. Perhaps our paths are still destined to meet somewhere in the future."),
+						}),
+					},
+					'Conditions', {},
+					'chanceToRoll', 10,
+				}),
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(122404520157, --[[ModItemUnitDataCompositeDef DrQ Text MercChatRefusal Lines ChatMessage voice:DrQ]] "I cannot accept. I believe you are reckless with the lives of your soldiers."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('MercChatConditionDeathToll', {
+							PresetValue = "2+",
+						}),
+					},
+				}),
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(526146488922, --[[ModItemUnitDataCompositeDef DrQ Text MercChatRefusal Lines ChatMessage voice:DrQ]] "I don't wish to embarrass you, but your bank balance tells me there are financial considerations you have not fully taken into account. I cannot accept."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('MercChatConditionMoney', {}),
+					},
+				}),
+			},
+			'Mitigations', {
+				PlaceObj('MercChatMitigation', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(258096842689, --[[ModItemUnitDataCompositeDef DrQ Text MercChatMitigation Lines ChatMessage voice:DrQ]] "I question some of your decisions. Nevertheless, I will defer to the judgement of Victoria Waters, whom I have learned to trust. I agree to the arrangement."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							Status = "Hired",
+							TargetUnit = "Vicki",
+						}),
+					},
+					'chanceToRoll', 100,
+				}),
+			},
+			'ExtraPartingWords', {
+				PlaceObj('MercChatBranch', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(782368601827, --[[ModItemUnitDataCompositeDef DrQ Text MercChatBranch Lines ChatMessage voice:DrQ]] "It is my wish to inform you that hiring Victoria Waters, whom people call Vicki, will be most beneficial to our mutual endeavors."),
+						}),
+						PlaceObj('ChatMessage', {
+							'Text', T(207175514450, --[[ModItemUnitDataCompositeDef DrQ Text MercChatBranch Lines ChatMessage voice:DrQ]] "Now that we have reached this agreement, I must prepare to depart. Thank you."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							TargetUnit = "Vicki",
+						}),
+					},
+				}),
+			},
+			'Offline', {
+				PlaceObj('ChatMessage', {
+					'Text', T(894325848245, --[[ModItemUnitDataCompositeDef DrQ Text Offline ChatMessage voice:DrQ]] "This is Dr. Q. Huaong. I am otherwise employed right now. I will notify you of my return or you may try me again later."),
+				}),
+			},
+			'GreetingAndOffer', {
+				PlaceObj('ChatMessage', {
+					'Text', T(490386458823, --[[ModItemUnitDataCompositeDef DrQ Text GreetingAndOffer ChatMessage voice:DrQ]] "This is Dr. Q. Huaong. Speak."),
+				}),
+			},
+			'ConversationRestart', {
+				PlaceObj('ChatMessage', {
+					'Text', T(324276273720, --[[ModItemUnitDataCompositeDef DrQ Text ConversationRestart ChatMessage voice:DrQ]] "Let us empty our minds from the clutter and attempt to reach a mutually beneficial arrangement again."),
+				}),
+			},
+			'IdleLine', {
+				PlaceObj('ChatMessage', {
+					'Text', T(426260331262, --[[ModItemUnitDataCompositeDef DrQ Text IdleLine ChatMessage voice:DrQ]] "I seem to be afflicted by the impatience of technology. I find myself awaiting more words from you."),
+				}),
+			},
+			'PartingWords', {
+				PlaceObj('ChatMessage', {
+					'Text', T(525408571527, --[[ModItemUnitDataCompositeDef DrQ Text PartingWords ChatMessage voice:DrQ]] "The arrangement is mutually beneficial. I agree to the terms."),
+				}),
+			},
+			'RehireIntro', {
+				PlaceObj('ChatMessage', {
+					'Text', T(271788292527, --[[ModItemUnitDataCompositeDef DrQ Text RehireIntro ChatMessage voice:DrQ]] "The end of our mutual agreement draws close. Do you wish to discuss an extension?"),
+				}),
+			},
+			'RehireOutro', {
+				PlaceObj('ChatMessage', {
+					'Text', T(466442744407, --[[ModItemUnitDataCompositeDef DrQ Text RehireOutro ChatMessage voice:DrQ]] "The renewal is agreeable to me."),
+				}),
+			},
+			'MedicalDeposit', "none",
+			'StartingSalary', 1350,
+			'SalaryIncrease', 200,
+			'SalaryLv1', 380,
+			'SalaryMaxLv', 4000,
+			'LegacyNotes', '"Doctor Huaong draws much of his medical knowledge from the branches of the ancient healing traditions. His marksmanship may be a little poor, but Dr. Q\'s expertise in so many other disciplines--night operations, guerrilla warfare tactics, and martial arts-more than make up for it, and he could easily double his fees. "\n\nAdditional info:\nHis salary is currently undergoing renegotiation.',
+			'StartingLevel', 3,
+			'MaxHitPoints', 88,
+			'Likes', {
+				"Vicki",
+			},
+			'StartingPerks', {
+				"MartialArts",
+				"NightOps",
+				"ExplodingPalm",
+				"SwiftStrike",
+				"Savior",
+			},
+			'AppearancesList', {
+				PlaceObj('AppearanceWeight', {
+					'Preset', "DrQ",
+				}),
+			},
+			'Equipment', {
+				"DrQ",
+			},
+			'Tier', "Elite",
+			'Specialization', "MeleeExpert",
+			'gender', "Male",
+		}),
+		PlaceObj('ModItemUnitDataCompositeDef', {
+			'Group', "MercenariesNew",
+			'Id', "Flay",
+			'object_class', "UnitData",
+			'Health', 79,
+			'Agility', 63,
+			'Dexterity', 78,
+			'Strength', 80,
+			'Wisdom', 79,
+			'Leadership', 12,
+			'Marksmanship', 84,
+			'Mechanical', 18,
+			'Explosives', 0,
+			'Medical', 50,
+			'Portrait', "UI/MercsPortraits/Flay",
+			'BigPortrait', "UI/Mercs/Flay",
+			'IsMercenary', true,
+			'Name', T(343442746191, --[[ModItemUnitDataCompositeDef Flay Name]] 'Jacques "Flay" Bohen'),
+			'Nick', T(330504416228, --[[ModItemUnitDataCompositeDef Flay Nick]] "Flay"),
+			'AllCapsNick', T(504344135007, --[[ModItemUnitDataCompositeDef Flay AllCapsNick]] "FLAY"),
+			'Affiliation', "Secret",
+			'HireStatus', "NotMet",
+			'Bio', T(908724610868, --[[ModItemUnitDataCompositeDef Flay Bio]] "An experienced poacher, Flay has hunted every animal imaginable. Now is the time to track down and kill the only beasts he has never hunted so far - humans.\nA difficult man to like, he is skilled in what he does and won't take much convincing to join you as it is obvious you are his best vehicle to achieve the loathsome goal."),
+			'Nationality', "GrandChien",
+			'Title', T(990023031876, --[[ModItemUnitDataCompositeDef Flay Title]] "Hunter Of Buckheads"),
+			'MedicalDeposit', "none",
+			'SalaryLv1', 0,
+			'SalaryMaxLv', 0,
+			'StartingLevel', 2,
+			'MaxHitPoints', 79,
+			'StartingPerks', {
+				"MeleeTraining",
+				"Loner",
+				"MakeThemBleed",
+				"OptimalPerformance",
+			},
+			'AppearancesList', {
+				PlaceObj('AppearanceWeight', {
+					'Preset', "Flay",
+				}),
+			},
+			'Equipment', {
+				"Flay",
+			},
+			'Tier', "Veteran",
+			'Specialization', "MeleeExpert",
+			'gender', "Male",
+			'VoiceResponseId', "Flay",
+		}),
+		PlaceObj('ModItemUnitDataCompositeDef', {
+			'Group', "MercenariesOld",
+			'Id', "Blood",
+			'object_class', "UnitData",
+			'Health', 84,
+			'Agility', 94,
+			'Dexterity', 88,
+			'Strength', 83,
+			'Wisdom', 73,
+			'Leadership', 6,
+			'Marksmanship', 78,
+			'Mechanical', 23,
+			'Explosives', 31,
+			'Medical', 51,
+			'Portrait', "UI/MercsPortraits/Blood",
+			'BigPortrait', "UI/Mercs/Blood",
+			'IsMercenary', true,
+			'Name', T(802835312817, --[[ModItemUnitDataCompositeDef Blood Name]] 'Keith "Blood" Hanson'),
+			'Nick', T(164320212189, --[[ModItemUnitDataCompositeDef Blood Nick]] "Blood"),
+			'AllCapsNick', T(322020024728, --[[ModItemUnitDataCompositeDef Blood AllCapsNick]] "BLOOD"),
+			'Bio', T(671370159861, --[[ModItemUnitDataCompositeDef Blood Bio]] "Don't let Blood's genial disposition fool you. He knows thirty different ways to kill a person using just his hands, although his preference is by doing it with a skillfully thrown knife. A former member of the ANC, nothing gives Keith more pleasure than helping a downtrodden people overthrow their oppressors, preferably by using exceptionally violent methods."),
+			'Nationality', "SouthAfrica",
+			'Title', T(851244098505, --[[ModItemUnitDataCompositeDef Blood Title]] "There Will Be Blood"),
+			'Email', T(479429292079, --[[ModItemUnitDataCompositeDef Blood Email]] "soulfood_warrior@aim.com"),
+			'snype_nick', T(231882870735, --[[ModItemUnitDataCompositeDef Blood snype_nick]] "soulfood_warrior"),
+			'Refusals', {
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(521890014916, --[[ModItemUnitDataCompositeDef Blood Text MercChatRefusal Lines ChatMessage voice:Blood]] "You see, I gotta get paid, and your portfolio looks a bit thin right now."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('MercChatConditionMoney', {}),
+					},
+				}),
+			},
+			'Haggles', {
+				PlaceObj('MercChatHaggle', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(478015007105, --[[ModItemUnitDataCompositeDef Blood Text MercChatHaggle Lines ChatMessage voice:Blood]] "You are a new face to me. I usually don't like to work with strangers, but if we can agree to up my rate a bit, I'll make an exception."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('MercChatConditionRehire', {}),
+					},
+					'chanceToRoll', 20,
+				}),
+			},
+			'HaggleRehire', {
+				PlaceObj('MercChatHaggle', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(629170704932, --[[ModItemUnitDataCompositeDef Blood Text MercChatHaggle Lines ChatMessage voice:Blood]] "I expected to see a little more action. You want me to hang around camp and cook meals, that's just fine, but I'm going to need some fancier ingredients to stay interested. What say you kick in a little more money?"),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('MercChatConditionCombatParticipate', {}),
+					},
+				}),
+			},
+			'Mitigations', {
+				PlaceObj('MercChatMitigation', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(445711271692, --[[ModItemUnitDataCompositeDef Blood Text MercChatMitigation Lines ChatMessage voice:Blood]] "Anyone who's got Magic Walker on their team's gotta be doing something right. You got me, too."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							Status = "Hired",
+							TargetUnit = "Magic",
+						}),
+					},
+					'chanceToRoll', 100,
+				}),
+			},
+			'Offline', {
+				PlaceObj('ChatMessage', {
+					'Text', T(563742109101, --[[ModItemUnitDataCompositeDef Blood Text Offline ChatMessage voice:Blood]] "Check out this high-tech messenger service! Very cool! Welcome to the 21st century! Leave a message and I'll get right back to you."),
+				}),
+			},
+			'GreetingAndOffer', {
+				PlaceObj('ChatMessage', {
+					'Text', T(197891718182, --[[ModItemUnitDataCompositeDef Blood Text GreetingAndOffer ChatMessage voice:Blood]] "Blood here. What is up?"),
+				}),
+			},
+			'ConversationRestart', {
+				PlaceObj('ChatMessage', {
+					'Text', T(467336414802, --[[ModItemUnitDataCompositeDef Blood Text ConversationRestart ChatMessage voice:Blood]] "Let's pick up where we left off."),
+				}),
+			},
+			'IdleLine', {
+				PlaceObj('ChatMessage', {
+					'Text', T(477964927445, --[[ModItemUnitDataCompositeDef Blood Text IdleLine ChatMessage voice:Blood]] "Pick up the pace, man. I got dinner cooking."),
+				}),
+			},
+			'PartingWords', {
+				PlaceObj('ChatMessage', {
+					'Text', T(914867530729, --[[ModItemUnitDataCompositeDef Blood Text PartingWords ChatMessage voice:Blood]] "All right! Now you're cooking with fire!"),
+				}),
+			},
+			'RehireIntro', {
+				PlaceObj('ChatMessage', {
+					'Text', T(362167345326, --[[ModItemUnitDataCompositeDef Blood Text RehireIntro ChatMessage voice:Blood]] "Sorry to say it, man, but my time here's almost up. What are we thinking?"),
+				}),
+			},
+			'RehireOutro', {
+				PlaceObj('ChatMessage', {
+					'Text', T(381289251166, --[[ModItemUnitDataCompositeDef Blood Text RehireOutro ChatMessage voice:Blood]] "Good! Now we can get back to enjoying local cuisine and killing bad guys!"),
+				}),
+			},
+			'MedicalDeposit', "large",
+			'StartingSalary', 770,
+			'SalaryLv1', 350,
+			'SalaryMaxLv', 3000,
+			'LegacyNotes', '"Whether it\'s jungle warfare or close-quartered combat, Blood Hanson is your man for the assignment. Trained in the martial arts, his ability to fling a combat knife into an enemy\'s neck is a sight to behold: it seems to come out of nowhere, sails an impossibly large distance, then slices through it\'s target with unerring accuracy.\n\nAdditional info: Keith Hanson is a former member of the ANC." - A.I.M. Dossier',
+			'StartingLevel', 3,
+			'CustomEquipGear', function (self, items)
+				self:TryEquip(items, "Handheld A", "Firearm")
+				self:TryEquip(items, "Handheld B", "MeleeWeapon")
+			end,
+			'MaxHitPoints', 84,
+			'Likes', {
+				"Magic",
+			},
+			'StartingPerks', {
+				"MartialArts",
+				"HundredKnives",
+				"BreachAndClear",
+				"OptimalPerformance",
+				"Throwing",
+			},
+			'AppearancesList', {
+				PlaceObj('AppearanceWeight', {
+					'Preset', "Blood",
+				}),
+			},
+			'Equipment', {
+				"Blood",
+			},
+			'Tier', "Veteran",
+			'Specialization', "KnifeExpert",
+			'gender', "Male",
+		}),
+		PlaceObj('ModItemUnitDataCompositeDef', {
+			'Group', "MercenariesOld",
+			'Id', "Igor",
+			'object_class', "UnitData",
+			'Health', 90,
+			'Agility', 89,
+			'Dexterity', 74,
+			'Strength', 85,
+			'Wisdom', 81,
+			'Leadership', 4,
+			'Marksmanship', 78,
+			'Mechanical', 36,
+			'Explosives', 19,
+			'Medical', 17,
+			'Portrait', "UI/MercsPortraits/Igor",
+			'BigPortrait', "UI/Mercs/Igor",
+			'IsMercenary', true,
+			'Name', T(897413725435, --[[ModItemUnitDataCompositeDef Igor Name]] "Igor Dolvich"),
+			'Nick', T(127286840688, --[[ModItemUnitDataCompositeDef Igor Nick]] "Igor"),
+			'AllCapsNick', T(910168204568, --[[ModItemUnitDataCompositeDef Igor AllCapsNick]] "IGOR"),
+			'Bio', T(840693912328, --[[ModItemUnitDataCompositeDef Igor Bio]] "The proud nephew of Ivan, Igor is an exceptionally talented mercenary in his own right. Although still young, Igor has managed to already garner a reputation at A.I.M. for using toughness, courage, marksmanship and stealth to get the better of his foes. Still a ways off from ever matching his uncle's exploits, Igor is eager to live up to his name. A merc to watch!"),
+			'Nationality', "Russia",
+			'Title', T(403090661358, --[[ModItemUnitDataCompositeDef Igor Title]] "Most Meritorious Merc"),
+			'Email', T(705882276063, --[[ModItemUnitDataCompositeDef Igor Email]] "igorisgreatmerc@aim.com"),
+			'snype_nick', T(638554271049, --[[ModItemUnitDataCompositeDef Igor snype_nick]] "igorisgreatmerc"),
+			'Refusals', {
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(617518510277, --[[ModItemUnitDataCompositeDef Igor Text MercChatRefusal Lines ChatMessage voice:Igor]] "No! You kill uncle Ivan. Uncle was greatest! If he died working for you, then you are terrible commander. Igor is last Dolvich merc. Igor must stay alive."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							Status = "Dead",
+							TargetUnit = "Ivan",
+						}),
+					},
+				}),
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(190117746438, --[[ModItemUnitDataCompositeDef Igor Text MercChatRefusal Lines ChatMessage voice:Igor]] "No! You are terrible commander and uncle is dead. I will not be working with you anymore."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							Status = "Dead",
+							TargetUnit = "Ivan",
+						}),
+					},
+					'Type', "rehire",
+				}),
+				PlaceObj('MercChatRefusal', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(933135590784, --[[ModItemUnitDataCompositeDef Igor Text MercChatRefusal Lines ChatMessage voice:Igor]] "Too many of those under your command return only in bits and pieces. I do not wish for certain death. I must dismiss your request."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('MercChatConditionDeathToll', {
+							PresetValue = "2+",
+						}),
+					},
+				}),
+			},
+			'Haggles', {
+				PlaceObj('MercChatHaggle', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(964038672608, --[[ModItemUnitDataCompositeDef Igor Text MercChatHaggle Lines ChatMessage voice:Igor]] "No! A.I.M. always try to give Igor low balls! Igor deserves more. This is better number."),
+						}),
+					},
+					'Conditions', {},
+					'chanceToRoll', 20,
+				}),
+			},
+			'HaggleRehire', {
+				PlaceObj('MercChatHaggle', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(600384367965, --[[ModItemUnitDataCompositeDef Igor Text MercChatHaggle Lines ChatMessage voice:Igor]] "I already show actions of greatness. I deserve more payment. "),
+						}),
+					},
+					'Conditions', {},
+					'chanceToRoll', 20,
+				}),
+			},
+			'Mitigations', {
+				PlaceObj('MercChatMitigation', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(969831612725, --[[ModItemUnitDataCompositeDef Igor Text MercChatMitigation Lines ChatMessage voice:Igor]] "I am always honored to serve wherever my illustrious uncle chooses to serve. I accept!"),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							Status = "Hired",
+							TargetUnit = "Ivan",
+						}),
+					},
+					'chanceToRoll', 100,
+				}),
+				PlaceObj('MercChatMitigation', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(584196267061, --[[ModItemUnitDataCompositeDef Igor Text MercChatMitigation Lines ChatMessage voice:Igor]] "I was going to tell you I do not want contract, but sweet little Kalinka is still here and she must be protected. I will stay, but I will need more money to help look out for her."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('CheckAND', {
+							Conditions = {
+								PlaceObj('UnitHireStatus', {
+									Status = "Hired",
+									TargetUnit = "Kalyna",
+								}),
+								PlaceObj('MercIsLikedDisliked', {
+									Object = "Kalyna",
+									TargetUnit = "Igor",
+								}),
+							},
+						}),
+					},
+					'chanceToRoll', 100,
+				}),
+			},
+			'ExtraPartingWords', {
+				PlaceObj('MercChatBranch', {
+					'Lines', {
+						PlaceObj('ChatMessage', {
+							'Text', T(905145495449, --[[ModItemUnitDataCompositeDef Igor Text MercChatBranch Lines ChatMessage voice:Igor]] "You must hire Uncle Ivan. He is greatest. He will come and see I am worthy of Dolvich name. But now we must drink. I go get bottle."),
+						}),
+					},
+					'Conditions', {
+						PlaceObj('UnitHireStatus', {
+							TargetUnit = "Ivan",
+						}),
+					},
+				}),
+			},
+			'Offline', {
+				PlaceObj('ChatMessage', {
+					'Text', T(873982789053, --[[ModItemUnitDataCompositeDef Igor Text Offline ChatMessage voice:Igor]] "This is Igor. Igor is a great mercenary. Almost all previous commanders gave Igor praise. Call again to hire Igor please."),
+				}),
+			},
+			'GreetingAndOffer', {
+				PlaceObj('ChatMessage', {
+					'Text', T(631185246496, --[[ModItemUnitDataCompositeDef Igor Text GreetingAndOffer ChatMessage voice:Igor]] "This is Igor. Igor is great mercenary. Like uncle who is also great. What is job?"),
+				}),
+			},
+			'ConversationRestart', {
+				PlaceObj('ChatMessage', {
+					'Text', T(323086821794, --[[ModItemUnitDataCompositeDef Igor Text ConversationRestart ChatMessage voice:Igor]] "Had to stop conversation to drink with friends? No worries. We continue."),
+				}),
+			},
+			'IdleLine', {
+				PlaceObj('ChatMessage', {
+					'Text', T(439057955843, --[[ModItemUnitDataCompositeDef Igor Text IdleLine ChatMessage voice:Igor]] "Are you there? It is vodka time over here so Igor is in hurry."),
+				}),
+			},
+			'PartingWords', {
+				PlaceObj('ChatMessage', {
+					'Text', T(120355826008, --[[ModItemUnitDataCompositeDef Igor Text PartingWords ChatMessage voice:Igor]] "You will not regret. Igor is great mercenary. Will receive a lot of commendation. Probably a medal, too."),
+				}),
+				PlaceObj('ChatMessage', {
+					'Text', T(676494703513, --[[ModItemUnitDataCompositeDef Igor Text PartingWords ChatMessage voice:Igor]] "Great. Now we must drink. I go get bottle."),
+				}),
+			},
+			'RehireIntro', {
+				PlaceObj('ChatMessage', {
+					'Text', T(107026999719, --[[ModItemUnitDataCompositeDef Igor Text RehireIntro ChatMessage voice:Igor]] "You know Igor is great merc. But contract expiring soon. We must fix."),
+				}),
+			},
+			'RehireOutro', {
+				PlaceObj('ChatMessage', {
+					'Text', T(818030639089, --[[ModItemUnitDataCompositeDef Igor Text RehireOutro ChatMessage voice:Igor]] "Now we drink. It is customary. "),
+				}),
+			},
+			'MedicalDeposit', "large",
+			'Haggling', "high",
+			'StartingSalary', 450,
+			'SalaryIncrease', 290,
+			'SalaryLv1', 275,
+			'SalaryMaxLv', 3500,
+			'LegacyNotes', '"Following in his uncle\'s footsteps won\'t be easy for Igor. His uncle Ivan Dolvich is legendary. Igor may be new to A.I.M. but he is by no means new to armed combat--he developed his abilities for stealth while in action in Chechnya. Most importantly, his bloodline speaks volumes about his potential. Igor and Ivan are already being referred to as the Russian "I-Team."" - A.I.M. Dossier\n\nAdditional info: \n\nRussian accent.\nHas had plenty of exposure to alcohol due to the horrors of war, though not as much of a drunk as Larry. \nUses odd expressions, which sometimes come off as strange and funny.\nAdmires his uncle, Ivan, but probably lacks the fortitude and discipline to be like him.\nHis affordable rates and good physical stats makes him a good choice for the opening game.',
+			'StartingLevel', 2,
+			'CustomEquipGear', function (self, items)
+				self:TryEquip(items, "Handheld A", "MeleeWeapon")
+				self:TryEquip(items, "Handheld B", "Firearm")
+			end,
+			'MaxHitPoints', 91,
+			'Likes', {
+				"Ivan",
+				"Grunty",
+			},
+			'LearnToLike', {
+				"Kalyna",
+			},
+			'StartingPerks', {
+				"Nazdarovya",
+				"Stealthy",
+				"OptimalPerformance",
+			},
+			'AppearancesList', {
+				PlaceObj('AppearanceWeight', {
+					'Preset', "Igor",
+				}),
+			},
+			'Equipment', {
+				"Igor",
+			},
+			'Specialization', "KnifeExpert",
+			'pollyvoice', "Geraint",
+			'gender', "Male",
+			'VoiceResponseId', "Igor",
 		}),
 		}),
 	PlaceObj('ModItemFolder', {
@@ -2539,571 +4047,4 @@ return {
 			id = "StimRecipe",
 		}),
 		}),
-	PlaceObj('ModItemUnitDataCompositeDef', {
-		'Group', "MercenariesOld",
-		'Id', "Blood",
-		'object_class', "UnitData",
-		'Health', 84,
-		'Agility', 94,
-		'Dexterity', 88,
-		'Strength', 83,
-		'Wisdom', 73,
-		'Leadership', 6,
-		'Marksmanship', 78,
-		'Mechanical', 23,
-		'Explosives', 31,
-		'Medical', 51,
-		'Portrait', "UI/MercsPortraits/Blood",
-		'BigPortrait', "UI/Mercs/Blood",
-		'IsMercenary', true,
-		'Name', T(802835312817, --[[ModItemUnitDataCompositeDef Blood Name]] 'Keith "Blood" Hanson'),
-		'Nick', T(164320212189, --[[ModItemUnitDataCompositeDef Blood Nick]] "Blood"),
-		'AllCapsNick', T(322020024728, --[[ModItemUnitDataCompositeDef Blood AllCapsNick]] "BLOOD"),
-		'Bio', T(671370159861, --[[ModItemUnitDataCompositeDef Blood Bio]] "Don't let Blood's genial disposition fool you. He knows thirty different ways to kill a person using just his hands, although his preference is by doing it with a skillfully thrown knife. A former member of the ANC, nothing gives Keith more pleasure than helping a downtrodden people overthrow their oppressors, preferably by using exceptionally violent methods."),
-		'Nationality', "SouthAfrica",
-		'Title', T(851244098505, --[[ModItemUnitDataCompositeDef Blood Title]] "There Will Be Blood"),
-		'Email', T(479429292079, --[[ModItemUnitDataCompositeDef Blood Email]] "soulfood_warrior@aim.com"),
-		'snype_nick', T(231882870735, --[[ModItemUnitDataCompositeDef Blood snype_nick]] "soulfood_warrior"),
-		'Refusals', {
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(521890014916, --[[ModItemUnitDataCompositeDef Blood Text MercChatRefusal Lines ChatMessage voice:Blood]] "You see, I gotta get paid, and your portfolio looks a bit thin right now."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('MercChatConditionMoney', {}),
-				},
-			}),
-		},
-		'Haggles', {
-			PlaceObj('MercChatHaggle', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(478015007105, --[[ModItemUnitDataCompositeDef Blood Text MercChatHaggle Lines ChatMessage voice:Blood]] "You are a new face to me. I usually don't like to work with strangers, but if we can agree to up my rate a bit, I'll make an exception."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('MercChatConditionRehire', {}),
-				},
-				'chanceToRoll', 20,
-			}),
-		},
-		'HaggleRehire', {
-			PlaceObj('MercChatHaggle', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(629170704932, --[[ModItemUnitDataCompositeDef Blood Text MercChatHaggle Lines ChatMessage voice:Blood]] "I expected to see a little more action. You want me to hang around camp and cook meals, that's just fine, but I'm going to need some fancier ingredients to stay interested. What say you kick in a little more money?"),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('MercChatConditionCombatParticipate', {}),
-				},
-			}),
-		},
-		'Mitigations', {
-			PlaceObj('MercChatMitigation', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(445711271692, --[[ModItemUnitDataCompositeDef Blood Text MercChatMitigation Lines ChatMessage voice:Blood]] "Anyone who's got Magic Walker on their team's gotta be doing something right. You got me, too."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						Status = "Hired",
-						TargetUnit = "Magic",
-					}),
-				},
-				'chanceToRoll', 100,
-			}),
-		},
-		'Offline', {
-			PlaceObj('ChatMessage', {
-				'Text', T(563742109101, --[[ModItemUnitDataCompositeDef Blood Text Offline ChatMessage voice:Blood]] "Check out this high-tech messenger service! Very cool! Welcome to the 21st century! Leave a message and I'll get right back to you."),
-			}),
-		},
-		'GreetingAndOffer', {
-			PlaceObj('ChatMessage', {
-				'Text', T(197891718182, --[[ModItemUnitDataCompositeDef Blood Text GreetingAndOffer ChatMessage voice:Blood]] "Blood here. What is up?"),
-			}),
-		},
-		'ConversationRestart', {
-			PlaceObj('ChatMessage', {
-				'Text', T(467336414802, --[[ModItemUnitDataCompositeDef Blood Text ConversationRestart ChatMessage voice:Blood]] "Let's pick up where we left off."),
-			}),
-		},
-		'IdleLine', {
-			PlaceObj('ChatMessage', {
-				'Text', T(477964927445, --[[ModItemUnitDataCompositeDef Blood Text IdleLine ChatMessage voice:Blood]] "Pick up the pace, man. I got dinner cooking."),
-			}),
-		},
-		'PartingWords', {
-			PlaceObj('ChatMessage', {
-				'Text', T(914867530729, --[[ModItemUnitDataCompositeDef Blood Text PartingWords ChatMessage voice:Blood]] "All right! Now you're cooking with fire!"),
-			}),
-		},
-		'RehireIntro', {
-			PlaceObj('ChatMessage', {
-				'Text', T(362167345326, --[[ModItemUnitDataCompositeDef Blood Text RehireIntro ChatMessage voice:Blood]] "Sorry to say it, man, but my time here's almost up. What are we thinking?"),
-			}),
-		},
-		'RehireOutro', {
-			PlaceObj('ChatMessage', {
-				'Text', T(381289251166, --[[ModItemUnitDataCompositeDef Blood Text RehireOutro ChatMessage voice:Blood]] "Good! Now we can get back to enjoying local cuisine and killing bad guys!"),
-			}),
-		},
-		'MedicalDeposit', "large",
-		'StartingSalary', 770,
-		'SalaryLv1', 350,
-		'SalaryMaxLv', 3000,
-		'LegacyNotes', '"Whether it\'s jungle warfare or close-quartered combat, Blood Hanson is your man for the assignment. Trained in the martial arts, his ability to fling a combat knife into an enemy\'s neck is a sight to behold: it seems to come out of nowhere, sails an impossibly large distance, then slices through it\'s target with unerring accuracy.\n\nAdditional info: Keith Hanson is a former member of the ANC." - A.I.M. Dossier',
-		'StartingLevel', 3,
-		'CustomEquipGear', function (self, items)
-			self:TryEquip(items, "Handheld A", "Firearm")
-			self:TryEquip(items, "Handheld B", "MeleeWeapon")
-		end,
-		'MaxHitPoints', 84,
-		'Likes', {
-			"Magic",
-		},
-		'StartingPerks', {
-			"MartialArts",
-			"HundredKnives",
-			"BreachAndClear",
-			"OptimalPerformance",
-			"Throwing",
-		},
-		'AppearancesList', {
-			PlaceObj('AppearanceWeight', {
-				'Preset', "Blood",
-			}),
-		},
-		'Equipment', {
-			"Blood",
-		},
-		'Tier', "Veteran",
-		'Specialization', "KnifeExpert",
-		'gender', "Male",
-	}),
-	PlaceObj('ModItemUnitDataCompositeDef', {
-		'Group', "MercenariesOld",
-		'Id', "Igor",
-		'object_class', "UnitData",
-		'Health', 90,
-		'Agility', 89,
-		'Dexterity', 74,
-		'Strength', 85,
-		'Wisdom', 81,
-		'Leadership', 4,
-		'Marksmanship', 78,
-		'Mechanical', 36,
-		'Explosives', 19,
-		'Medical', 17,
-		'Portrait', "UI/MercsPortraits/Igor",
-		'BigPortrait', "UI/Mercs/Igor",
-		'IsMercenary', true,
-		'Name', T(897413725435, --[[ModItemUnitDataCompositeDef Igor Name]] "Igor Dolvich"),
-		'Nick', T(127286840688, --[[ModItemUnitDataCompositeDef Igor Nick]] "Igor"),
-		'AllCapsNick', T(910168204568, --[[ModItemUnitDataCompositeDef Igor AllCapsNick]] "IGOR"),
-		'Bio', T(840693912328, --[[ModItemUnitDataCompositeDef Igor Bio]] "The proud nephew of Ivan, Igor is an exceptionally talented mercenary in his own right. Although still young, Igor has managed to already garner a reputation at A.I.M. for using toughness, courage, marksmanship and stealth to get the better of his foes. Still a ways off from ever matching his uncle's exploits, Igor is eager to live up to his name. A merc to watch!"),
-		'Nationality', "Russia",
-		'Title', T(403090661358, --[[ModItemUnitDataCompositeDef Igor Title]] "Most Meritorious Merc"),
-		'Email', T(705882276063, --[[ModItemUnitDataCompositeDef Igor Email]] "igorisgreatmerc@aim.com"),
-		'snype_nick', T(638554271049, --[[ModItemUnitDataCompositeDef Igor snype_nick]] "igorisgreatmerc"),
-		'Refusals', {
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(617518510277, --[[ModItemUnitDataCompositeDef Igor Text MercChatRefusal Lines ChatMessage voice:Igor]] "No! You kill uncle Ivan. Uncle was greatest! If he died working for you, then you are terrible commander. Igor is last Dolvich merc. Igor must stay alive."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						Status = "Dead",
-						TargetUnit = "Ivan",
-					}),
-				},
-			}),
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(190117746438, --[[ModItemUnitDataCompositeDef Igor Text MercChatRefusal Lines ChatMessage voice:Igor]] "No! You are terrible commander and uncle is dead. I will not be working with you anymore."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						Status = "Dead",
-						TargetUnit = "Ivan",
-					}),
-				},
-				'Type', "rehire",
-			}),
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(933135590784, --[[ModItemUnitDataCompositeDef Igor Text MercChatRefusal Lines ChatMessage voice:Igor]] "Too many of those under your command return only in bits and pieces. I do not wish for certain death. I must dismiss your request."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('MercChatConditionDeathToll', {
-						PresetValue = "2+",
-					}),
-				},
-			}),
-		},
-		'Haggles', {
-			PlaceObj('MercChatHaggle', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(964038672608, --[[ModItemUnitDataCompositeDef Igor Text MercChatHaggle Lines ChatMessage voice:Igor]] "No! A.I.M. always try to give Igor low balls! Igor deserves more. This is better number."),
-					}),
-				},
-				'Conditions', {},
-				'chanceToRoll', 20,
-			}),
-		},
-		'HaggleRehire', {
-			PlaceObj('MercChatHaggle', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(600384367965, --[[ModItemUnitDataCompositeDef Igor Text MercChatHaggle Lines ChatMessage voice:Igor]] "I already show actions of greatness. I deserve more payment. "),
-					}),
-				},
-				'Conditions', {},
-				'chanceToRoll', 20,
-			}),
-		},
-		'Mitigations', {
-			PlaceObj('MercChatMitigation', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(969831612725, --[[ModItemUnitDataCompositeDef Igor Text MercChatMitigation Lines ChatMessage voice:Igor]] "I am always honored to serve wherever my illustrious uncle chooses to serve. I accept!"),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						Status = "Hired",
-						TargetUnit = "Ivan",
-					}),
-				},
-				'chanceToRoll', 100,
-			}),
-			PlaceObj('MercChatMitigation', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(584196267061, --[[ModItemUnitDataCompositeDef Igor Text MercChatMitigation Lines ChatMessage voice:Igor]] "I was going to tell you I do not want contract, but sweet little Kalinka is still here and she must be protected. I will stay, but I will need more money to help look out for her."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('CheckAND', {
-						Conditions = {
-							PlaceObj('UnitHireStatus', {
-								Status = "Hired",
-								TargetUnit = "Kalyna",
-							}),
-							PlaceObj('MercIsLikedDisliked', {
-								Object = "Kalyna",
-								TargetUnit = "Igor",
-							}),
-						},
-					}),
-				},
-				'chanceToRoll', 100,
-			}),
-		},
-		'ExtraPartingWords', {
-			PlaceObj('MercChatBranch', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(905145495449, --[[ModItemUnitDataCompositeDef Igor Text MercChatBranch Lines ChatMessage voice:Igor]] "You must hire Uncle Ivan. He is greatest. He will come and see I am worthy of Dolvich name. But now we must drink. I go get bottle."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						TargetUnit = "Ivan",
-					}),
-				},
-			}),
-		},
-		'Offline', {
-			PlaceObj('ChatMessage', {
-				'Text', T(873982789053, --[[ModItemUnitDataCompositeDef Igor Text Offline ChatMessage voice:Igor]] "This is Igor. Igor is a great mercenary. Almost all previous commanders gave Igor praise. Call again to hire Igor please."),
-			}),
-		},
-		'GreetingAndOffer', {
-			PlaceObj('ChatMessage', {
-				'Text', T(631185246496, --[[ModItemUnitDataCompositeDef Igor Text GreetingAndOffer ChatMessage voice:Igor]] "This is Igor. Igor is great mercenary. Like uncle who is also great. What is job?"),
-			}),
-		},
-		'ConversationRestart', {
-			PlaceObj('ChatMessage', {
-				'Text', T(323086821794, --[[ModItemUnitDataCompositeDef Igor Text ConversationRestart ChatMessage voice:Igor]] "Had to stop conversation to drink with friends? No worries. We continue."),
-			}),
-		},
-		'IdleLine', {
-			PlaceObj('ChatMessage', {
-				'Text', T(439057955843, --[[ModItemUnitDataCompositeDef Igor Text IdleLine ChatMessage voice:Igor]] "Are you there? It is vodka time over here so Igor is in hurry."),
-			}),
-		},
-		'PartingWords', {
-			PlaceObj('ChatMessage', {
-				'Text', T(120355826008, --[[ModItemUnitDataCompositeDef Igor Text PartingWords ChatMessage voice:Igor]] "You will not regret. Igor is great mercenary. Will receive a lot of commendation. Probably a medal, too."),
-			}),
-			PlaceObj('ChatMessage', {
-				'Text', T(676494703513, --[[ModItemUnitDataCompositeDef Igor Text PartingWords ChatMessage voice:Igor]] "Great. Now we must drink. I go get bottle."),
-			}),
-		},
-		'RehireIntro', {
-			PlaceObj('ChatMessage', {
-				'Text', T(107026999719, --[[ModItemUnitDataCompositeDef Igor Text RehireIntro ChatMessage voice:Igor]] "You know Igor is great merc. But contract expiring soon. We must fix."),
-			}),
-		},
-		'RehireOutro', {
-			PlaceObj('ChatMessage', {
-				'Text', T(818030639089, --[[ModItemUnitDataCompositeDef Igor Text RehireOutro ChatMessage voice:Igor]] "Now we drink. It is customary. "),
-			}),
-		},
-		'MedicalDeposit', "large",
-		'Haggling', "high",
-		'StartingSalary', 450,
-		'SalaryIncrease', 290,
-		'SalaryLv1', 275,
-		'SalaryMaxLv', 3500,
-		'LegacyNotes', '"Following in his uncle\'s footsteps won\'t be easy for Igor. His uncle Ivan Dolvich is legendary. Igor may be new to A.I.M. but he is by no means new to armed combat--he developed his abilities for stealth while in action in Chechnya. Most importantly, his bloodline speaks volumes about his potential. Igor and Ivan are already being referred to as the Russian "I-Team."" - A.I.M. Dossier\n\nAdditional info: \n\nRussian accent.\nHas had plenty of exposure to alcohol due to the horrors of war, though not as much of a drunk as Larry. \nUses odd expressions, which sometimes come off as strange and funny.\nAdmires his uncle, Ivan, but probably lacks the fortitude and discipline to be like him.\nHis affordable rates and good physical stats makes him a good choice for the opening game.',
-		'StartingLevel', 2,
-		'CustomEquipGear', function (self, items)
-			self:TryEquip(items, "Handheld A", "MeleeWeapon")
-			self:TryEquip(items, "Handheld B", "Firearm")
-		end,
-		'MaxHitPoints', 91,
-		'Likes', {
-			"Ivan",
-			"Grunty",
-		},
-		'LearnToLike', {
-			"Kalyna",
-		},
-		'StartingPerks', {
-			"Nazdarovya",
-			"Stealthy",
-			"OptimalPerformance",
-			"BattleReady",
-		},
-		'AppearancesList', {
-			PlaceObj('AppearanceWeight', {
-				'Preset', "Igor",
-			}),
-		},
-		'Equipment', {
-			"Igor",
-		},
-		'Specialization', "KnifeExpert",
-		'pollyvoice', "Geraint",
-		'gender', "Male",
-		'VoiceResponseId', "Igor",
-	}),
-	PlaceObj('ModItemUnitDataCompositeDef', {
-		'Group', "MercenariesNew",
-		'Id', "Flay",
-		'object_class', "UnitData",
-		'Health', 79,
-		'Agility', 63,
-		'Dexterity', 78,
-		'Strength', 80,
-		'Wisdom', 79,
-		'Leadership', 12,
-		'Marksmanship', 84,
-		'Mechanical', 18,
-		'Explosives', 0,
-		'Medical', 50,
-		'Portrait', "UI/MercsPortraits/Flay",
-		'BigPortrait', "UI/Mercs/Flay",
-		'IsMercenary', true,
-		'Name', T(343442746191, --[[ModItemUnitDataCompositeDef Flay Name]] 'Jacques "Flay" Bohen'),
-		'Nick', T(330504416228, --[[ModItemUnitDataCompositeDef Flay Nick]] "Flay"),
-		'AllCapsNick', T(504344135007, --[[ModItemUnitDataCompositeDef Flay AllCapsNick]] "FLAY"),
-		'Affiliation', "Secret",
-		'HireStatus', "NotMet",
-		'Bio', T(908724610868, --[[ModItemUnitDataCompositeDef Flay Bio]] "An experienced poacher, Flay has hunted every animal imaginable. Now is the time to track down and kill the only beasts he has never hunted so far - humans.\nA difficult man to like, he is skilled in what he does and won't take much convincing to join you as it is obvious you are his best vehicle to achieve the loathsome goal."),
-		'Nationality', "GrandChien",
-		'Title', T(990023031876, --[[ModItemUnitDataCompositeDef Flay Title]] "Hunter Of Buckheads"),
-		'MedicalDeposit', "none",
-		'SalaryLv1', 0,
-		'SalaryMaxLv', 0,
-		'StartingLevel', 2,
-		'MaxHitPoints', 79,
-		'StartingPerks', {
-			"MeleeTraining",
-			"Loner",
-			"MakeThemBleed",
-			"OptimalPerformance",
-		},
-		'AppearancesList', {
-			PlaceObj('AppearanceWeight', {
-				'Preset', "Flay",
-			}),
-		},
-		'Equipment', {
-			"Flay",
-		},
-		'Tier', "Veteran",
-		'Specialization', "MeleeExpert",
-		'gender', "Male",
-		'VoiceResponseId', "Flay",
-	}),
-	PlaceObj('ModItemUnitDataCompositeDef', {
-		'Group', "MercenariesOld",
-		'Id', "DrQ",
-		'object_class', "UnitData",
-		'Health', 88,
-		'Agility', 94,
-		'Dexterity', 81,
-		'Strength', 73,
-		'Wisdom', 87,
-		'Leadership', 26,
-		'Mechanical', 19,
-		'Explosives', 20,
-		'Medical', 88,
-		'Portrait', "UI/MercsPortraits/DrQ",
-		'BigPortrait', "UI/Mercs/DrQ",
-		'IsMercenary', true,
-		'Name', T(439421925357, --[[ModItemUnitDataCompositeDef DrQ Name]] "Dr. Q. Huaong"),
-		'Nick', T(255166847971, --[[ModItemUnitDataCompositeDef DrQ Nick]] "Dr. Q"),
-		'AllCapsNick', T(474179139438, --[[ModItemUnitDataCompositeDef DrQ AllCapsNick]] "DR. Q"),
-		'Bio', T(534822476757, --[[ModItemUnitDataCompositeDef DrQ Bio]] "While attending a seminar on acupuncture where he served as guest lecturer, Dr. Q had the opportunity to use his skills in night operations and martial arts to infiltrate the compound of a nearby drug lord to liberate a hoard of medical supplies and deliver them to a local hospital. It is rumored he waived his usual fee for such services, but Huaong denies it."),
-		'Nationality', "China",
-		'Title', T(615125004223, --[[ModItemUnitDataCompositeDef DrQ Title]] "Expert in Aggressive Acupuncture"),
-		'Email', T(930834652198, --[[ModItemUnitDataCompositeDef DrQ Email]] "sage_q@aim.com"),
-		'snype_nick', T(509571188579, --[[ModItemUnitDataCompositeDef DrQ snype_nick]] "sage_q"),
-		'Refusals', {
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(692942746751, --[[ModItemUnitDataCompositeDef DrQ Text MercChatRefusal Lines ChatMessage voice:DrQ]] "I must sorrowfully decline. I am participating in the review of a new treatment. Perhaps our paths are still destined to meet somewhere in the future."),
-					}),
-				},
-				'Conditions', {},
-				'chanceToRoll', 10,
-			}),
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(122404520157, --[[ModItemUnitDataCompositeDef DrQ Text MercChatRefusal Lines ChatMessage voice:DrQ]] "I cannot accept. I believe you are reckless with the lives of your soldiers."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('MercChatConditionDeathToll', {
-						PresetValue = "2+",
-					}),
-				},
-			}),
-			PlaceObj('MercChatRefusal', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(526146488922, --[[ModItemUnitDataCompositeDef DrQ Text MercChatRefusal Lines ChatMessage voice:DrQ]] "I don't wish to embarrass you, but your bank balance tells me there are financial considerations you have not fully taken into account. I cannot accept."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('MercChatConditionMoney', {}),
-				},
-			}),
-		},
-		'Mitigations', {
-			PlaceObj('MercChatMitigation', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(258096842689, --[[ModItemUnitDataCompositeDef DrQ Text MercChatMitigation Lines ChatMessage voice:DrQ]] "I question some of your decisions. Nevertheless, I will defer to the judgement of Victoria Waters, whom I have learned to trust. I agree to the arrangement."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						Status = "Hired",
-						TargetUnit = "Vicki",
-					}),
-				},
-				'chanceToRoll', 100,
-			}),
-		},
-		'ExtraPartingWords', {
-			PlaceObj('MercChatBranch', {
-				'Lines', {
-					PlaceObj('ChatMessage', {
-						'Text', T(782368601827, --[[ModItemUnitDataCompositeDef DrQ Text MercChatBranch Lines ChatMessage voice:DrQ]] "It is my wish to inform you that hiring Victoria Waters, whom people call Vicki, will be most beneficial to our mutual endeavors."),
-					}),
-					PlaceObj('ChatMessage', {
-						'Text', T(207175514450, --[[ModItemUnitDataCompositeDef DrQ Text MercChatBranch Lines ChatMessage voice:DrQ]] "Now that we have reached this agreement, I must prepare to depart. Thank you."),
-					}),
-				},
-				'Conditions', {
-					PlaceObj('UnitHireStatus', {
-						TargetUnit = "Vicki",
-					}),
-				},
-			}),
-		},
-		'Offline', {
-			PlaceObj('ChatMessage', {
-				'Text', T(894325848245, --[[ModItemUnitDataCompositeDef DrQ Text Offline ChatMessage voice:DrQ]] "This is Dr. Q. Huaong. I am otherwise employed right now. I will notify you of my return or you may try me again later."),
-			}),
-		},
-		'GreetingAndOffer', {
-			PlaceObj('ChatMessage', {
-				'Text', T(490386458823, --[[ModItemUnitDataCompositeDef DrQ Text GreetingAndOffer ChatMessage voice:DrQ]] "This is Dr. Q. Huaong. Speak."),
-			}),
-		},
-		'ConversationRestart', {
-			PlaceObj('ChatMessage', {
-				'Text', T(324276273720, --[[ModItemUnitDataCompositeDef DrQ Text ConversationRestart ChatMessage voice:DrQ]] "Let us empty our minds from the clutter and attempt to reach a mutually beneficial arrangement again."),
-			}),
-		},
-		'IdleLine', {
-			PlaceObj('ChatMessage', {
-				'Text', T(426260331262, --[[ModItemUnitDataCompositeDef DrQ Text IdleLine ChatMessage voice:DrQ]] "I seem to be afflicted by the impatience of technology. I find myself awaiting more words from you."),
-			}),
-		},
-		'PartingWords', {
-			PlaceObj('ChatMessage', {
-				'Text', T(525408571527, --[[ModItemUnitDataCompositeDef DrQ Text PartingWords ChatMessage voice:DrQ]] "The arrangement is mutually beneficial. I agree to the terms."),
-			}),
-		},
-		'RehireIntro', {
-			PlaceObj('ChatMessage', {
-				'Text', T(271788292527, --[[ModItemUnitDataCompositeDef DrQ Text RehireIntro ChatMessage voice:DrQ]] "The end of our mutual agreement draws close. Do you wish to discuss an extension?"),
-			}),
-		},
-		'RehireOutro', {
-			PlaceObj('ChatMessage', {
-				'Text', T(466442744407, --[[ModItemUnitDataCompositeDef DrQ Text RehireOutro ChatMessage voice:DrQ]] "The renewal is agreeable to me."),
-			}),
-		},
-		'MedicalDeposit', "none",
-		'StartingSalary', 1350,
-		'SalaryIncrease', 200,
-		'SalaryLv1', 380,
-		'SalaryMaxLv', 4000,
-		'LegacyNotes', '"Doctor Huaong draws much of his medical knowledge from the branches of the ancient healing traditions. His marksmanship may be a little poor, but Dr. Q\'s expertise in so many other disciplines--night operations, guerrilla warfare tactics, and martial arts-more than make up for it, and he could easily double his fees. "\n\nAdditional info:\nHis salary is currently undergoing renegotiation.',
-		'StartingLevel', 3,
-		'MaxHitPoints', 88,
-		'Likes', {
-			"Vicki",
-		},
-		'StartingPerks', {
-			"MartialArts",
-			"NightOps",
-			"ExplodingPalm",
-			"SwiftStrike",
-			"Savior",
-		},
-		'AppearancesList', {
-			PlaceObj('AppearanceWeight', {
-				'Preset', "DrQ",
-			}),
-		},
-		'Equipment', {
-			"DrQ",
-		},
-		'Tier', "Elite",
-		'Specialization', "MeleeExpert",
-		'gender', "Male",
-	}),
 }
