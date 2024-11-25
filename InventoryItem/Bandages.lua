@@ -4,6 +4,7 @@ DefineClass.Bandages = {
 	__generated_by_class = "ModItemInventoryItemCompositeDef",
 
 
+	comment = "Unarmed Bonus Attack Dmg",
 	object_class = "UnarmedWeapon",
 	Repairable = false,
 	Reliability = 100,

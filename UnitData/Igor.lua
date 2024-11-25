@@ -203,7 +203,6 @@ DefineClass.Igor = {
 		"Nazdarovya",
 		"Stealthy",
 		"OptimalPerformance",
-		"BattleReady",
 	},
 	AppearancesList = {
 		PlaceObj('AppearanceWeight', {

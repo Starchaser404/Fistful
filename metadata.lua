@@ -13,7 +13,7 @@ return PlaceObj('ModDef', {
 	},
 	'id', "bWKFbe",
 	'author', "cockadoodledoo",
-	'version', 1665,
+	'version', 1706,
 	'lua_revision', 233360,
 	'saved_with_revision', 350233,
 	'code', {
@@ -24,6 +24,7 @@ return PlaceObj('ModDef', {
 		"InventoryItem/Stones.lua",
 		"InventoryItem/ThrowingAxe.lua",
 		"InventoryItem/Sands.lua",
+		"CharacterEffect/FastStrike.lua",
 		"CharacterEffect/MartialArts.lua",
 		"CharacterEffect/CQCTraining.lua",
 		"CharacterEffect/Spiritual.lua",
@@ -59,11 +60,12 @@ return PlaceObj('ModDef', {
 		"UnitData/Igor.lua",
 		"InventoryItem/ThrowKnifeKit.lua",
 		"InventoryItem/MeleeKnifeKit.lua",
+		"Code/FastStrikeScript.lua",
 	},
 	'default_options', {},
 	'has_data', true,
-	'saved', 1732104019,
-	'code_hash', -2085708183014260919,
+	'saved', 1732561050,
+	'code_hash', 271802511150542044,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "ModItemSector",
@@ -114,6 +116,11 @@ return PlaceObj('ModDef', {
 			'Class', "InventoryItemCompositeDef",
 			'Id', "Sands",
 			'ClassDisplayName', "Inventory item",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "CharacterEffectCompositeDef",
+			'Id', "FastStrike",
+			'ClassDisplayName', "Character effect",
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "CharacterEffectCompositeDef",
@@ -253,6 +260,11 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "CombatAction",
 			'Id', "Eyes",
+			'ClassDisplayName', "Combat Action",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "CombatAction",
+			'Id', "FastStrike",
 			'ClassDisplayName', "Combat Action",
 		}),
 		PlaceObj('ModResourcePreset', {
