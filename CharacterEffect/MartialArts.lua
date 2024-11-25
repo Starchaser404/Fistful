@@ -31,6 +31,6 @@ DefineClass.MartialArts = {
 	Icon = "UI/Icons/Perks/MartialArts",
 	Tier = "Bronze",
 	Stat = "Agility",
-	StatValue = 75,
+	StatValue = 65,
 }
 

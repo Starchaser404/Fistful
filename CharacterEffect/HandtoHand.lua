@@ -11,6 +11,6 @@ DefineClass.HandtoHand = {
 	Icon = "UI/Icons/Perks/MeleeTraining",
 	Tier = "Bronze",
 	Stat = "Strength",
-	StatValue = 75,
+	StatValue = 65,
 }
 

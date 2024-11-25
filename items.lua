@@ -179,13 +179,19 @@ return {
 			'CenterUnitDamageMod', 0,
 			'CenterObjDamageMod', 0,
 			'CenterAppliedEffects', {
-				"Burning",
+				"Revealed",
+				"Exposed",
+				"Suppressed",
+				"SeverelySuppressed",
 			},
 			'AreaOfEffect', 2,
 			'AreaUnitDamageMod', 0,
 			'AreaObjDamageMod', 0,
 			'AreaAppliedEffects', {
-				"Burning",
+				"Revealed",
+				"Exposed",
+				"Suppressed",
+				"SeverelySuppressed",
 			},
 			'PenetrationClass', 1,
 			'BaseDamage', 6,
@@ -334,6 +340,38 @@ return {
 	PlaceObj('ModItemFolder', {
 		'name', "Perks",
 	}, {
+		PlaceObj('ModItemCharacterEffectCompositeDef', {
+			'Id', "FastStrike",
+			'Parameters', {
+				PlaceObj('PresetParamPercent', {
+					'Name', "damage_reduction",
+					'Value', 50,
+					'Tag', "<damage_reduction>%",
+				}),
+			},
+			'object_class', "CharacterEffect",
+			'msg_reactions', {},
+			'unit_reactions', {
+				PlaceObj('UnitReaction', {
+					Event = "OnCalcDamageAndEffects",
+					Handler = function (self, target, attacker, attack_target, action, weapon, attack_args, hit, data)
+						if not action or not action.id or not attacker then
+							return
+						end
+						
+						if target == attacker and action.id == self.class then		
+							local reduction = self:ResolveValue("damage_reduction") or 100
+							local damage = MulDivRound(data.base_damage or 0 ,reduction,100)
+							data.breakdown[#data.breakdown + 1] = { name = self.DisplayName, value = (data.base_damage - damage)*-1 } --- visual
+							data.base_damage = damage
+						end
+					end,
+					param_bindings = false,
+				}),
+			},
+			'DisplayName', T(692352253433, --[[ModItemCharacterEffectCompositeDef FastStrike DisplayName]] "Fast Strikes"),
+			'Description', T(269318247440, --[[ModItemCharacterEffectCompositeDef FastStrike Description]] "You are able to execute three melee strikes in quick succession, but each attack only does <damage_reduction>% damage."),
+		}),
 		PlaceObj('ModItemFolder', {
 			'name', "CopperTree65",
 		}, {
@@ -1468,6 +1506,166 @@ return {
 			comment = "Blinded",
 			group = "Default",
 			id = "Eyes",
+		}),
+		PlaceObj('ModItemCombatAction', {
+			ActionType = "Melee Attack",
+			AimType = "melee",
+			ConfigurableKeybind = false,
+			CostBasedOnWeapon = true,
+			Description = T(266619388609, --[[ModItemCombatAction FastStrike Description]] "Execute a series of melee attacks in succession, but at reduced damage. If the enemy is in cover, they will become <GameTerm('Exposed')>."),
+			DisplayName = T(374597353385, --[[ModItemCombatAction FastStrike DisplayName]] "Fast Strikes"),
+			EvalTarget = function (self, units, target, args)
+				local unit = units[1]
+				if (not args or not args.goto_pos) and (not IsValid(target) or not unit:GetClosestMeleeRangePos(target)) then
+					return 0
+				end
+				return unit:CalcChanceToHit(target, self, args)
+			end,
+			FiringModeMember = "Attack",
+			GetAPCost = function (self, unit, args)
+				return GetMeleeAttackAPCost(self, unit, args)
+			end,
+			GetActionDamage = function (self, unit, target, args)
+				local weapon = self:GetAttackWeapons(unit, args)
+				if not weapon then return 0 end
+				
+				local base = unit:GetBaseDamage(weapon)
+				local mod = 100 + MulDivRound(unit.Strength, weapon.DamageMultiplier, 100)
+				local damage = MulDivRound(base, mod, 100)
+				
+				return damage, damage, damage - base
+			end,
+			GetActionDescription = function (self, units)
+				local unit = units[1]
+				local action = GetMeleeAttackAction(self, unit)
+				if action ~= self and action:GetUIState(units) == "enabled" then
+					return action:GetActionDescription(units)
+				end
+				local damage, base, bonus = self:GetActionDamage(unit)
+				
+				local descr 
+				if LastLoadedOrLoadingIMode == "IModeCombatMelee" then
+					descr = T{652639293521, "Select a unit to attack.", damage = damage}
+				else
+					descr = T{self.Description, damage = damage, basedamage = base, bonusdamage = bonus}
+				end
+				
+				descr = CombatActionsAppendFreeAimDescription(self, unit, descr)
+				return descr
+			end,
+			GetActionDisplayName = function (self, units)
+				local unit = units[1]
+				local action = GetMeleeAttackAction(self, unit)
+				if action ~= self and action:GetUIState(units) == "enabled" then
+					return action:GetActionDisplayName(units)
+				end
+				local name = self.DisplayName
+				if (name or "") == "" then
+					name = Untranslated(self.id)
+				end
+				return CombatActionsAppendFreeAimActionName(self, unit, name)
+			end,
+			GetActionIcon = function (self, units)
+				local unit = units[1]
+				local action = GetMeleeAttackAction(self, unit)
+				if action ~= self and action:GetUIState(units) == "enabled" then
+					return action:GetActionIcon(units)
+				end
+				return self.Icon
+			end,
+			GetActionResults = function (self, unit, args)
+				local args = table.copy(args)
+				args.num_shots = 0
+				args.weapon = self:GetAttackWeapons(unit, args)
+				if IsKindOf(args.weapon, "GutHookKnife") then
+					args.applied_status = { "Bleeding" }
+				end
+				local attack_args = unit:PrepareAttackArgs(self.id, args)
+				local results = attack_args.weapon:GetAttackResults(self, attack_args)
+				return results, attack_args
+			end,
+			GetAnyTarget = function (self, units)
+				local unit = units[1]
+				return CombatActionGetOneAttackableEnemy(self, unit, nil, CombatActionTargetFilters.MeleeAttack, unit)
+			end,
+			GetAttackWeapons = function (self, unit, args)
+				if args and args.weapon then return args.weapon end
+				return unit:GetActiveWeapons("MeleeWeapon")
+			end,
+			GetDefaultTarget = function (self, unit)
+				local units = {unit}
+				local targets = self:GetTargets(units)
+				local weapon = self:GetAttackWeapons(unit)
+				local nearest, min_dist
+				
+				for _, target in ipairs(targets) do
+					if unit:IsOnEnemySide(target) and HasVisibilityTo(unit.team, target) then
+						local pos = unit:GetClosestMeleeRangePos(target)
+						local dist
+						if not g_Combat or unit:CanAttack(target, weapon, self, 0, pos) then
+							dist = pos and unit:GetDist(pos)
+						end
+						if dist and (not min_dist or dist < min_dist) then
+							nearest, min_dist = target, dist
+						end
+					end
+				end
+				
+				return nearest, min_dist
+			end,
+			GetTargets = function (self, units)
+				local unit = units[1]
+				return CombatActionGetAttackableEnemies(self, unit, nil, CombatActionTargetFilters.MeleeAttack, unit)
+			end,
+			GetUIState = function (self, units, args)
+				local unit = units[1]
+				-----
+				if not HasPerk(unit, self.id) then ---- only units with the perk can use it
+					return "hidden"
+				end
+				-------
+				args = args or {}
+				args.ap_cost_breakdown = args.ap_cost_breakdown or {}
+				local cost = self:GetAPCost(unit, args)
+				if cost < 0 then return "hidden" end
+				if not unit:UIHasAP(cost, self.id, args) then
+					return "disabled", AttackDisableReasons.NoAP
+				end
+				return "enabled"
+			end,
+			Icon = "UI/Icons/Hud/melee",
+			IdDefault = "FastStrikedefault",
+			IsTargetableAttack = true,
+			KeybindingFromAction = "actionRedirectBasicAttack",
+			MoveStep = true,
+			MultiSelectBehavior = "first",
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "num_atts",
+					'Value', 3,
+					'Tag', "<num_atts>",
+				}),
+			},
+			RequireState = "any",
+			RequireWeapon = true,
+			Run = function (self, unit, ap, ...)
+				unit:SetActionCommand("FastStrike", self.id, ap, ...)
+			end,
+			SortKey = 2,
+			StealthAttack = true,
+			UIBegin = function (self, units, args)
+				if not args or not args.free_aim then
+					local action = GetMeleeAttackAction(self, units[1])
+					if action ~= self and action:GetUIState(units) == "enabled" then
+						return action:UIBegin(units, args)
+					end
+				end
+				CombatActionAttackStart(self, units, args, "IModeCombatMelee", "attack")
+			end,
+			UseFreeMove = true,
+			basicAttack = true,
+			group = "Default",
+			id = "FastStrike",
 		}),
 		PlaceObj('ModItemCombatAction', {
 			ActionPoints = 4000,
@@ -4047,4 +4245,8 @@ return {
 			id = "StimRecipe",
 		}),
 		}),
+	PlaceObj('ModItemCode', {
+		'name', "FastStrikeScript",
+		'CodeFileName', "Code/FastStrikeScript.lua",
+	}),
 }

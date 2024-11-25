@@ -20,7 +20,7 @@ DefineClass.NaturalStealth = {
 	Description = T(673501055811, --[[ModItemCharacterEffectCompositeDef NaturalStealth Description]] "This character is <sight_mod>% harder to see."),
 	Icon = "Mod/bWKFbe/Images/Hideskill.png",
 	Tier = "Silver",
-	Stat = "Dexterity",
-	StatValue = 85,
+	Stat = "Wisdom",
+	StatValue = 75,
 }
 

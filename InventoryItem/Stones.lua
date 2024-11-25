@@ -33,6 +33,10 @@ DefineClass.Stones = {
 	AreaOfEffect = 1,
 	AreaUnitDamageMod = 0,
 	AreaObjDamageMod = 0,
+	AreaAppliedEffects = {
+		"Exposed",
+		"Marked",
+	},
 	PenetrationClass = 1,
 	BurnGround = false,
 	BaseDamage = 0,

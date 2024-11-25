@@ -22,6 +22,6 @@ DefineClass.Throwing = {
 	Icon = "UI/Icons/Perks/Throwing",
 	Tier = "Bronze",
 	Stat = "Dexterity",
-	StatValue = 75,
+	StatValue = 65,
 }
 
